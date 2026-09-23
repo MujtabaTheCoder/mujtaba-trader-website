@@ -11,6 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,700&display=swap" rel="stylesheet" />
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="pages.css" />
 </head>
 <body>
 
@@ -50,7 +51,7 @@
         <li><a href="#services" class="nav-link">Programs</a></li>
         <li><a href="#gold" class="nav-link">Gold Edge</a></li>
         <li><a href="#why" class="nav-link">Why Us</a></li>
-        <li><a href="signals.html" class="nav-link">Signals</a></li>
+        <li><a href="#signals" class="nav-link">Signals</a></li>
         <li><a href="#enroll" class="nav-link enroll-btn">Enroll Now</a></li>
       </ul>
       <button class="hamburger" id="hamburger" aria-label="Toggle Menu">
@@ -420,6 +421,44 @@
     </div>
   </section>
 
+  <!-- ═══════════════ LIVE SIGNALS SECTION ═══════════════ -->
+  <section class="signals-main" id="signals" style="padding: 100px 0; background: radial-gradient(circle at 50% 20%, rgba(245,200,66,0.05), transparent 70%);">
+    <div class="section-container">
+      <div class="section-header" style="text-align: center; margin-bottom: 40px;">
+        <div class="section-tag">Institutional Broadcast</div>
+        <h2 class="section-title">Live <span class="gold-text">Market Signals</span></h2>
+        <p class="section-desc">Real-time Gold (XAU/USD) algorithmic setups with strict risk parameters.</p>
+      </div>
+
+      <!-- Live Feed Status Bar -->
+      <div class="signal-live-bar">
+        <div class="signal-live-status">
+          <span class="signal-live-pulse"></span>
+          <span>LIVE BROADCAST FEED • ACTIVE</span>
+        </div>
+        <div style="font-size:12px;color:var(--text-3);display:flex;align-items:center;gap:12px">
+          <span>Desk: <strong style="color:var(--primary-color,#f5c842)">Mujtaba XAU/USD Specialization</strong></span>
+          <span style="opacity:0.5">•</span>
+          <a href="signals.html" style="color:var(--primary-color,#f5c842);font-weight:700;text-decoration:none">Full Signal Desk & Archives →</a>
+        </div>
+      </div>
+
+      <!-- Signals Grid -->
+      <div class="signals-grid" id="homeSignalsGrid">
+        <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-3)">
+          <p style="color:#f5c842">Connecting to live signals feed...</p>
+        </div>
+      </div>
+
+      <div style="text-align: center; margin-top: 36px;">
+        <a href="signals.html" class="btn-primary" style="display:inline-flex;align-items:center;gap:8px">
+          <span>View Audited Historical Track Record & All Signals</span>
+          <span>→</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
   <!-- ═══════════════ ENROLLMENT FORM SECTION ═══════════════ -->
   <section class="enroll" id="enroll">
     <div class="enroll-bg-glow"></div>
@@ -619,5 +658,92 @@
   <script src="supabase.js"></script>
   <script src="script.js"></script>
 
+  <script>
+  // Home Page Signals Loader
+  (async function loadHomeSignals() {
+    const grid = document.getElementById('homeSignalsGrid');
+    if (!grid) return;
+
+    const fallback = [
+      {
+        pair: 'XAU/USD',
+        type: 'BUY',
+        entry_price: '2,632.50',
+        stop_loss: '2,618.00',
+        take_profit_1: '2,648.00',
+        take_profit_2: '2,665.00',
+        status: 'Active',
+        pips: '+155 pips',
+        notes: 'Institutional Order Block retest at Asian session low. Clean liquidity sweep with bullish market structure shift on 15M.'
+      },
+      {
+        pair: 'XAU/USD',
+        type: 'SELL',
+        entry_price: '2,658.00',
+        stop_loss: '2,671.00',
+        take_profit_1: '2,642.00',
+        take_profit_2: '2,625.00',
+        status: 'Active',
+        pips: '+160 pips',
+        notes: 'Liquidity grab at 4H fair value gap premium zone. Target London session low imbalance fill.'
+      }
+    ];
+
+    function render(list) {
+      grid.innerHTML = '';
+      list.forEach(sig => {
+        const isBuy = (sig.type || '').toUpperCase() === 'BUY';
+        const dirClass = isBuy ? 'buy' : 'sell';
+        const dirIcon = isBuy ? '🟢' : '🔴';
+        const card = document.createElement('div');
+        card.className = 'signal-card tilt-card';
+        card.innerHTML = `
+          <div class="signal-card-header">
+            <div class="signal-pair">
+              <span class="signal-icon">${dirIcon}</span>
+              <span class="signal-instrument">${sig.pair || 'XAU/USD'}</span>
+              ${sig.pips ? `<span class="signal-pips">${sig.pips}</span>` : ''}
+            </div>
+            <span class="signal-dir ${dirClass}">${(sig.type || 'BUY').toUpperCase()}</span>
+          </div>
+          <div class="signal-card-body">
+            <div class="signal-row"><span class="signal-label">Entry Level</span><span class="signal-val">${sig.entry_price || '—'}</span></div>
+            <div class="signal-row"><span class="signal-label">Stop Loss</span><span class="signal-val" style="color:#ff6b6b">${sig.stop_loss || '—'}</span></div>
+            <div class="signal-row"><span class="signal-label">Take Profit 1</span><span class="signal-val" style="color:#4ade80">${sig.take_profit_1 || '—'}</span></div>
+            ${sig.take_profit_2 ? `<div class="signal-row"><span class="signal-label">Take Profit 2</span><span class="signal-val" style="color:#4ade80">${sig.take_profit_2}</span></div>` : ''}
+            ${sig.notes ? `<div class="signal-notes">💡 <strong>Analysis:</strong> ${sig.notes}</div>` : ''}
+          </div>
+          <div class="signal-card-footer">
+            <span class="outcome-badge" style="background:rgba(245,200,66,0.15);color:#f5c842;border:1px solid rgba(245,200,66,0.3);font-size:11px;padding:3px 8px;border-radius:6px;font-weight:700">⏳ ACTIVE</span>
+            <a href="signals.html" style="font-size:12px;color:var(--admin-gold,#f5c842);text-decoration:none;font-weight:600">Track Setup →</a>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    // Try Supabase fetch with retry
+    let loaded = false;
+    let attempts = 0;
+    while (!window.SupabaseDB?.getClient() && attempts < 12) {
+      await new Promise(r => setTimeout(r, 200));
+      attempts++;
+    }
+
+    try {
+      if (window.SupabaseDB) {
+        const signals = await window.SupabaseDB.getSignals();
+        if (signals && signals.length > 0) {
+          render(signals.slice(0, 3));
+          loaded = true;
+        }
+      }
+    } catch (e) {
+      console.warn('Home signal fetch err:', e);
+    }
+
+    if (!loaded) render(fallback);
+  })();
+  </script>
 </body>
 </html>

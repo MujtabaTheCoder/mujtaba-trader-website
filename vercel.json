@@ -1,0 +1,15 @@
+{
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "rewrites": [
+    { "source": "/signals", "destination": "/signals.html" },
+    { "source": "/signal", "destination": "/signals.html" },
+    { "source": "/singal", "destination": "/signals.html" },
+    { "source": "/about", "destination": "/about.html" },
+    { "source": "/courses", "destination": "/courses.html" },
+    { "source": "/contact", "destination": "/contact.html" },
+    { "source": "/enroll", "destination": "/enroll.html" },
+    { "source": "/blog", "destination": "/blog.html" },
+    { "source": "/admin", "destination": "/admin.html" }
+  ]
+}
