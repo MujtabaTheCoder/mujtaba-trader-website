@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Mujtaba Forex Trader — Premier Institutional Gold (XAU/USD) Trading Academy. Master price action, SMC, and risk engineering with an elite mentor." />
+  <meta name="keywords" content="forex trading, gold trading, XAU/USD, forex mentor, trading academy, Mujtaba Forex Trader, Pakistan forex, institutional trading" />
+  <title>Mujtaba Forex Trader — Elite Gold Trading Academy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ═══════════════ NAVBAR ═══════════════ -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="20,2 38,12 38,28 20,38 2,28 2,12" stroke="url(#goldGrad)" stroke-width="2" fill="none"/>
+            <text x="50%" y="56%" dominant-baseline="middle" text-anchor="middle" fill="url(#goldGrad)" font-size="14" font-weight="bold" font-family="Outfit">M</text>
+            <defs>
+              <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#f5c842"/>
+                <stop offset="100%" stop-color="#d4941a"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div class="logo-text">
+          <span class="logo-main">Mujtaba</span>
+          <span class="logo-sub">Forex Trader</span>
+        </div>
+      </a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#home" class="nav-link active">Home</a></li>
+        <li><a href="#about" class="nav-link">About</a></li>
+        <li><a href="#services" class="nav-link">Programs</a></li>
+        <li><a href="#gold" class="nav-link">Gold Edge</a></li>
+        <li><a href="#why" class="nav-link">Why Us</a></li>
+        <li><a href="signals.html" class="nav-link">Signals</a></li>
+        <li><a href="#enroll" class="nav-link enroll-btn">Enroll Now</a></li>
+      </ul>
+      <button class="hamburger" id="hamburger" aria-label="Toggle Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ═══════════════ HERO SECTION (3D AESTHETIC) ═══════════════ -->
+  <section class="hero" id="home">
+    <div class="hero-bg">
+      <img src="hero_bg.jpg" alt="Institutional Gold Trading Desk" class="hero-img" />
+      <div class="hero-overlay"></div>
+    </div>
+
+    <!-- Live Financial Ticker — TradingView Real-Time -->
+    <div class="tradingview-widget-container" style="position:relative;z-index:5;">
+      <div class="tradingview-widget-container__widget"></div>
+      <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+      {
+        "symbols": [
+          {"proName": "FOREXCOM:XAUUSD", "title": "Gold XAU/USD"},
+          {"proName": "FOREXCOM:XAGUSD", "title": "Silver XAG/USD"},
+          {"proName": "FX:EURUSD",       "title": "EUR/USD"},
+          {"proName": "FX:GBPUSD",       "title": "GBP/USD"},
+          {"proName": "FX:USDJPY",       "title": "USD/JPY"},
+          {"proName": "FX:USDCHF",       "title": "USD/CHF"},
+          {"proName": "TVC:DXY",         "title": "DXY Index"},
+          {"proName": "NASDAQ:NVDA",     "title": "NVIDIA"}
+        ],
+        "showSymbolLogo": true,
+        "isTransparent": true,
+        "displayMode": "adaptive",
+        "colorTheme": "dark",
+        "locale": "en"
+      }
+      </script>
+    </div>
+
+    <!-- Hero Content -->
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="badge-dot"></span>
+        Elite Institutional Mentorship • XAU/USD Specialist
+      </div>
+      <h1 class="hero-title">
+        <span class="title-line-1">Master The Science Of</span>
+        <span class="title-line-2 gold-text">Gold Trading</span>
+        <span class="title-line-3">With Mujtaba Forex</span>
+      </h1>
+      <p class="hero-desc">
+        Transform from retail speculation to institutional precision. Master proprietary Gold (XAU/USD) 
+        order-flow, algorithmic liquidity models, and strict capital preservation strategies.
+      </p>
+
+      <div class="hero-stats">
+        <div class="stat-card tilt-card">
+          <span class="stat-num" data-target="500">0</span><span class="stat-plus">+</span>
+          <span class="stat-label">Trained Traders</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-card tilt-card">
+          <span class="stat-num" data-target="5">0</span><span class="stat-plus">+</span>
+          <span class="stat-label">Years Track Record</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-card tilt-card">
+          <span class="stat-num" data-target="86">0</span><span class="stat-plus">%</span>
+          <span class="stat-label">Verified Accuracy</span>
+        </div>
+      </div>
+
+      <div class="hero-cta">
+        <a href="#enroll" class="btn-primary">
+          <span>Apply For Mentorship</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+        <a href="#about" class="btn-ghost">
+          <span>Explore Academy</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- 3D Interactive Floating Cards -->
+    <div class="floating-cards">
+      <div class="float-card card-1 tilt-card">
+        <div class="card-icon">📈</div>
+        <div class="card-info">
+          <span class="card-label">XAU/USD SPOT</span>
+          <span class="card-val green">+$2,658.40</span>
+        </div>
+      </div>
+      <div class="float-card card-2 tilt-card">
+        <div class="card-icon">🥇</div>
+        <div class="card-info">
+          <span class="card-label">Live Signal</span>
+          <span class="card-val green">BUY TP2 HIT</span>
+        </div>
+      </div>
+      <div class="float-card card-3 tilt-card">
+        <div class="card-icon">💎</div>
+        <div class="card-info">
+          <span class="card-label">Weekly Net</span>
+          <span class="card-val green">+680 Pips</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-scroll">
+      <div class="scroll-indicator"><div class="scroll-dot"></div></div>
+      <span>Explore</span>
+    </div>
+  </section>
+
+  <!-- ═══════════════ ABOUT SECTION ═══════════════ -->
+  <section class="about" id="about">
+    <div class="section-container">
+      <div class="about-grid">
+        <div class="about-image-wrap">
+          <div class="about-img-3d tilt-card">
+            <div class="img-glow-ring"></div>
+            <div class="trader-avatar" style="background:none;padding:0;overflow:hidden;border-radius:50%">
+              <img
+                src="mujtaba.jpg"
+                alt="Mujtaba — Senior Gold Trading Mentor"
+                style="width:100%;height:100%;object-fit:cover;object-position:center 55%;border-radius:50%;display:block;"
+              />
+            </div>
+            <div class="badge-floating">
+              <span>🏆</span> Senior Mentor
+            </div>
+          </div>
+        </div>
+        <div class="about-content">
+          <div class="section-tag">Institutional Mastery</div>
+          <h2 class="section-title">
+            Meet <span class="gold-text">Mujtaba</span> —<br/>Your Gold Trading Mentor
+          </h2>
+          <p class="about-text">
+            I am Mujtaba, a professional high-frequency Gold (XAU/USD) trader and market analyst. 
+            Over 5+ years of live market execution, I have engineered an edge rooted in institutional liquidity pools, 
+            smart money accumulation, and session-timing mechanics.
+          </p>
+          <p class="about-text">
+            My mission is to eliminate retail gambling habits and instill systematic, repeatable execution protocols. 
+            Every student receives direct personal guidance, daily trade breakdowns, and battle-tested risk discipline.
+          </p>
+
+          <div class="skills-grid">
+            <div class="skill-item">
+              <div class="skill-bar-wrap">
+                <span class="skill-name">XAU/USD Liquidity Mapping</span>
+                <span class="skill-pct">96%</span>
+              </div>
+              <div class="skill-track"><div class="skill-fill" style="--w:96%"></div></div>
+            </div>
+            <div class="skill-item">
+              <div class="skill-bar-wrap">
+                <span class="skill-name">Institutional Smart Money (SMC)</span>
+                <span class="skill-pct">92%</span>
+              </div>
+              <div class="skill-track"><div class="skill-fill" style="--w:92%"></div></div>
+            </div>
+            <div class="skill-item">
+              <div class="skill-bar-wrap">
+                <span class="skill-name">Risk & Capital Engineering</span>
+                <span class="skill-pct">95%</span>
+              </div>
+              <div class="skill-track"><div class="skill-fill" style="--w:95%"></div></div>
+            </div>
+            <div class="skill-item">
+              <div class="skill-bar-wrap">
+                <span class="skill-name">Live Execution & Session Timing</span>
+                <span class="skill-pct">90%</span>
+              </div>
+              <div class="skill-track"><div class="skill-fill" style="--w:90%"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ SERVICES / PROGRAMS SECTION ═══════════════ -->
+  <section class="services" id="services">
+    <div class="section-container">
+      <div class="section-header">
+        <div class="section-tag">Curriculum</div>
+        <h2 class="section-title">Elite <span class="gold-text">Trading Programs</span></h2>
+        <p class="section-desc">Engineered for all skill tiers — structured from foundational mechanics to sovereign fund mastery.</p>
+      </div>
+      <div class="services-grid">
+
+        <div class="service-card tilt-card" data-delay="0">
+          <div class="service-icon-wrap">
+            <div class="service-icon">📊</div>
+          </div>
+          <div class="service-tag free">Foundation</div>
+          <h3 class="service-title">Market Fundamentals</h3>
+          <p class="service-desc">
+            Master auction market theory, price mechanics, lot calculations, spread control, and professional terminal configuration.
+          </p>
+          <ul class="service-list">
+            <li>Market microstructure & terminology</li>
+            <li>Candlestick logic & supply-demand zones</li>
+            <li>TradingView & MT4/MT5 pro setups</li>
+            <li>Foundational risk management matrix</li>
+          </ul>
+          <a href="#enroll" class="service-btn" data-course="Market Fundamentals">Enroll Now →</a>
+        </div>
+
+        <div class="service-card featured tilt-card" data-delay="100">
+          <div class="service-badge">FLAGSHIP</div>
+          <div class="service-icon-wrap">
+            <div class="service-icon">🥇</div>
+          </div>
+          <div class="service-tag gold-tag">Gold Mastery</div>
+          <h3 class="service-title">Gold Pro Specialist (XAU/USD)</h3>
+          <p class="service-desc">
+            Our premier high-conviction program dedicated exclusively to conquering Gold volatility and capturing multi-hundred pip expansions.
+          </p>
+          <ul class="service-list">
+            <li>Gold macro drivers & DXY inverse dynamics</li>
+            <li>London/NY session open volatility strategies</li>
+            <li>Key support & resistance liquidity raids</li>
+            <li>Live daily chart analysis & trade setups</li>
+            <li>Personal 1-on-1 portfolio review sessions</li>
+          </ul>
+          <a href="#enroll" class="service-btn featured-btn" data-course="Gold Pro Specialist">Enroll Now →</a>
+        </div>
+
+        <div class="service-card tilt-card" data-delay="200">
+          <div class="service-icon-wrap">
+            <div class="service-icon">🧠</div>
+          </div>
+          <div class="service-tag advanced">Institutional</div>
+          <h3 class="service-title">Advanced SMC & Order Flow</h3>
+          <p class="service-desc">
+            Designed for funded account traders. Master order block mitigation, fair value gaps (FVG), and liquidity sweeps.
+          </p>
+          <ul class="service-list">
+            <li>Institutional Order Flow (IOF) models</li>
+            <li>Multi-timeframe fractal analysis</li>
+            <li>High-frequency session inducement mechanics</li>
+            <li>Prop firm challenge pass protocols</li>
+          </ul>
+          <a href="#enroll" class="service-btn" data-course="Advanced SMC & Order Flow">Enroll Now →</a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ GOLD TRADING SECTION ═══════════════ -->
+  <section class="gold-section" id="gold">
+    <div class="gold-bg-glow"></div>
+    <div class="section-container">
+      <div class="gold-grid">
+        <div class="gold-content">
+          <div class="section-tag">Market Supremacy</div>
+          <h2 class="section-title">
+            Why We Specialize in<br/><span class="gold-text">Gold (XAU/USD)</span>
+          </h2>
+          <p class="gold-desc">
+            Gold is the pinnacle of financial markets — unmatched liquidity, explosive daily range, and pure price action geometry.
+          </p>
+          <div class="gold-reasons">
+            <div class="reason-item tilt-card">
+              <div class="reason-icon">⚡</div>
+              <div class="reason-text">
+                <h4>Massive Daily Pip Volatility</h4>
+                <p>Gold delivers 1,500 to 3,500 points of daily range, creating superior risk-to-reward ratios compared to traditional currencies.</p>
+              </div>
+            </div>
+            <div class="reason-item tilt-card">
+              <div class="reason-icon">🛡️</div>
+              <div class="reason-text">
+                <h4>Sovereign Safe-Haven Stability</h4>
+                <p>Backed by central banks and global capital flows, Gold respects technical liquidity levels with institutional accuracy.</p>
+              </div>
+            </div>
+            <div class="reason-item tilt-card">
+              <div class="reason-icon">📉</div>
+              <div class="reason-text">
+                <h4>Geometric Price Cleanliness</h4>
+                <p>Clean structural expansions and predictable London/New York session continuation trends make it ideal for disciplined traders.</p>
+              </div>
+            </div>
+            <div class="reason-item tilt-card">
+              <div class="reason-icon">🌍</div>
+              <div class="reason-text">
+                <h4>24/5 Non-Stop Execution</h4>
+                <p>Trade around your schedule with seamless global market depth from Asian accumulation to NY session delivery.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="gold-visual">
+          <div class="gold-img-container tilt-card">
+            <img src="gold_bars.jpg" alt="Institutional Gold Bullion XAU/USD" class="gold-img" />
+            <div class="gold-price-badge">
+              <span class="gold-symbol">XAU/USD</span>
+              <span class="gold-price">$2,658.40</span>
+              <span class="gold-change positive">▲ +1.24% Today</span>
+            </div>
+            <div class="gold-candles">
+              <div class="candle green" style="height: 60px;"></div>
+              <div class="candle red" style="height: 40px;"></div>
+              <div class="candle green" style="height: 85px;"></div>
+              <div class="candle green" style="height: 55px;"></div>
+              <div class="candle red" style="height: 35px;"></div>
+              <div class="candle green" style="height: 95px;"></div>
+              <div class="candle green" style="height: 70px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ WHY US SECTION ═══════════════ -->
+  <section class="why-us" id="why">
+    <div class="section-container">
+      <div class="section-header">
+        <div class="section-tag">Competitive Edge</div>
+        <h2 class="section-title">The <span class="gold-text">Mujtaba Advantage</span></h2>
+      </div>
+      <div class="why-grid">
+        <div class="why-card tilt-card">
+          <div class="why-num">01</div>
+          <div class="why-icon">🎯</div>
+          <h3>Live Market Execution</h3>
+          <p>We execute in real time. Observe live chart breakdowns, entry triggers, and strict invalidation levels.</p>
+        </div>
+        <div class="why-card tilt-card">
+          <div class="why-num">02</div>
+          <div class="why-icon">📡</div>
+          <h3>High-Conviction Signals</h3>
+          <p>Gain access to institutional setups with verified risk-to-reward ratios and multi-target roadmaps.</p>
+        </div>
+        <div class="why-card tilt-card">
+          <div class="why-num">03</div>
+          <div class="why-icon">🤝</div>
+          <h3>Direct Personal Mentorship</h3>
+          <p>No generic bots or prerecorded fluff. Mujtaba reviews your trades and evaluates your technical psychology.</p>
+        </div>
+        <div class="why-card tilt-card">
+          <div class="why-num">04</div>
+          <div class="why-icon">🌐</div>
+          <h3>Bespoke Learning Path</h3>
+          <p>Clear, direct English instruction designed to compress years of trial and error into weeks of guided clarity.</p>
+        </div>
+        <div class="why-card tilt-card">
+          <div class="why-num">05</div>
+          <div class="why-icon">🏆</div>
+          <h3>Verified Track Record</h3>
+          <p>500+ mentored students across the country and abroad with consistent, documented profitability.</p>
+        </div>
+        <div class="why-card tilt-card">
+          <div class="why-num">06</div>
+          <div class="why-icon">♾️</div>
+          <h3>Lifetime Network Access</h3>
+          <p>Enjoy permanent membership in our private elite syndicate, continuous strategy upgrades, and live webinars.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ ENROLLMENT FORM SECTION ═══════════════ -->
+  <section class="enroll" id="enroll">
+    <div class="enroll-bg-glow"></div>
+    <div class="section-container">
+      <div class="enroll-wrapper">
+        <div class="enroll-info">
+          <div class="section-tag">Limited Intake</div>
+          <h2 class="section-title">
+            Apply For <span class="gold-text">Admission</span><br/>Start Your Mastery
+          </h2>
+          <p class="enroll-desc">
+            Submit your candidate dossier below. Mujtaba personally reviews all applications and contacts qualified candidates directly to schedule onboarding.
+          </p>
+          <div class="enroll-perks">
+            <div class="perk"><span class="perk-check">✓</span> Private 1-on-1 Candidate Evaluation</div>
+            <div class="perk"><span class="perk-check">✓</span> Personalized Curriculum Selection</div>
+            <div class="perk"><span class="perk-check">✓</span> Institutional Trade Desk Access</div>
+            <div class="perk"><span class="perk-check">✓</span> Direct Mentor Contact Guarantee</div>
+          </div>
+          <div class="official-badge-card tilt-card">
+            <div class="ob-icon">🏛️</div>
+            <div class="ob-text">
+              <span class="ob-title">Direct Candidate Review</span>
+              <span class="ob-num">Personal Onboarding</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-container tilt-card">
+          <div class="form-glow"></div>
+          <form class="enroll-form" id="enrollForm" novalidate>
+            <div class="form-header">
+              <h3>Student Application Dossier</h3>
+              <p>Please provide accurate contact details for mentor review</p>
+            </div>
+
+            <div class="form-group">
+              <label for="studentName">Full Name <span class="req">*</span></label>
+              <div class="input-wrap">
+                <span class="input-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </span>
+                <input type="text" id="studentName" name="name" placeholder="Enter your full legal name" required autocomplete="name" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="studentPhone">Contact / Phone Number <span class="req">*</span></label>
+              <div class="input-wrap">
+                <span class="input-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.6 19.79 19.79 0 0 1 1.63 5a2 2 0 0 1 1.99-2H6.6A2 2 0 0 1 8.59 4.69a12.72 12.72 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 10.5a16 16 0 0 0 6 6l.94-.94a2 2 0 0 1 2.11-.45 12.72 12.72 0 0 0 2.81.7A2 2 0 0 1 21.54 18h.38v-1.08z"/></svg>
+                </span>
+                <input type="tel" id="studentPhone" name="phone" placeholder="Your Phone / WhatsApp number" required autocomplete="tel" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="studentEmail">Email Address</label>
+              <div class="input-wrap">
+                <span class="input-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,12 2,6"/></svg>
+                </span>
+                <input type="email" id="studentEmail" name="email" placeholder="name@example.com" autocomplete="email" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="studentCity">City / Location <span class="req">*</span></label>
+              <div class="input-wrap">
+                <span class="input-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                </span>
+                <input type="text" id="studentCity" name="city" placeholder="Your residential city" required />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="studentLevel">Trading Background <span class="req">*</span></label>
+              <div class="input-wrap select-wrap">
+                <span class="input-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                </span>
+                <select id="studentLevel" name="level" required>
+                  <option value="" disabled selected>Select your trading experience</option>
+                  <option value="Complete Beginner">Complete Beginner (No prior trading)</option>
+                  <option value="Some Knowledge">Basic Knowledge (Demo trading)</option>
+                  <option value="Intermediate">Intermediate (Live market experience)</option>
+                  <option value="Advanced">Advanced (Looking to scale capital)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="studentCourse">Target Mentorship Program <span class="req">*</span></label>
+              <div class="input-wrap select-wrap">
+                <span class="input-icon">📚</span>
+                <select id="studentCourse" name="course" required>
+                  <option value="" disabled selected>Select program</option>
+                  <option value="Gold Pro Specialist" selected>Gold Pro Specialist (XAU/USD)</option>
+                  <option value="Market Fundamentals">Market Fundamentals</option>
+                  <option value="Advanced SMC & Order Flow">Advanced SMC & Order Flow</option>
+                  <option value="Complete Institutional Package">Complete Institutional Package</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="studentMessage">Trading Goals / Notes</label>
+              <div class="input-wrap textarea-wrap">
+                <textarea id="studentMessage" name="message" placeholder="What are your primary goals in financial trading?" rows="3"></textarea>
+              </div>
+            </div>
+
+            <button type="submit" class="form-submit" id="submitBtn">
+              <span class="btn-text">Submit Application</span>
+              <span class="btn-icon">⚡</span>
+              <div class="btn-loader" id="btnLoader"></div>
+            </button>
+
+            <div class="form-success" id="formSuccess">
+              <div class="success-icon">🏛️</div>
+              <h4>Application Successfully Submitted</h4>
+              <p>Thank you. Your dossier is now pending review. Mujtaba will contact you directly via phone/message.</p>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ FOOTER ═══════════════ -->
+  <footer class="footer">
+    <div class="footer-glow"></div>
+    <div class="section-container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="nav-logo footer-logo">
+            <div class="logo-icon">
+              <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <polygon points="20,2 38,12 38,28 20,38 2,28 2,12" stroke="url(#goldGrad2)" stroke-width="2" fill="none"/>
+                <text x="50%" y="56%" dominant-baseline="middle" text-anchor="middle" fill="url(#goldGrad2)" font-size="14" font-weight="bold" font-family="Outfit">M</text>
+                <defs>
+                  <linearGradient id="goldGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#f5c842"/>
+                    <stop offset="100%" stop-color="#d4941a"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+            <div class="logo-text">
+              <span class="logo-main">Mujtaba</span>
+              <span class="logo-sub">Forex Trader</span>
+            </div>
+          </div>
+          <p class="footer-tagline">Premier Institutional Gold Trading Mentorship & Analytical Intelligence.</p>
+        </div>
+        <div class="footer-links">
+          <h4>Navigation</h4>
+          <ul>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#about">About Mentor</a></li>
+            <li><a href="#services">Programs</a></li>
+            <li><a href="#gold">Gold Edge</a></li>
+            <li><a href="signals.html">Signals</a></li>
+            <li><a href="#enroll">Enroll Now</a></li>
+          </ul>
+        </div>
+        <div class="footer-links">
+          <h4>Curricula</h4>
+          <ul>
+            <li><a href="#enroll">Market Fundamentals</a></li>
+            <li><a href="#enroll">Gold Pro (XAU/USD)</a></li>
+            <li><a href="#enroll">Advanced SMC Strategy</a></li>
+            <li><a href="#enroll">Executive Package</a></li>
+          </ul>
+        </div>
+        <div class="footer-contact">
+          <h4>Admissions</h4>
+          <p>📋 Selection: <strong>By Application Only</strong></p>
+          <p>📍 Pakistan & Global Syndicate</p>
+          <p>🔐 <a href="admin.html" style="color:var(--gold-1);text-decoration:none;font-weight:600">Admin Portal Login →</a></p>
+          <div class="disclaimer">
+            <p>⚠️ <strong>Risk Disclosure:</strong> Trading foreign exchange and spot commodities carries substantial risk and may not be suitable for all investors. Ensure you trade responsibly with verified capital management.</p>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2026 Mujtaba Forex Trader. All Rights Reserved. Built with Precision for Elite Traders.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Particles Canvas -->
+  <canvas id="particles" class="particles-canvas"></canvas>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

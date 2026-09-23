@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Executive Admin CRM | Mujtaba Forex Trader</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="pages.css"/>
+  <style>
+    :root {
+      --admin-bg: #070603;
+      --admin-surface: rgba(18, 14, 5, 0.85);
+      --admin-border: rgba(245, 200, 66, 0.15);
+      --admin-gold: #f5c842;
+    }
+    body { background: var(--admin-bg); color: var(--text-1); font-family: var(--font-body); margin: 0; }
+    .admin-layout { display: flex; min-height: 100vh; }
+    
+    /* Sidebar */
+    .admin-sidebar {
+      width: 270px; flex-shrink: 0;
+      background: rgba(10, 8, 2, 0.95);
+      border-right: 1px solid var(--admin-border);
+      padding: 32px 24px;
+      display: flex; flex-direction: column;
+      position: fixed; top: 0; left: 0; height: 100vh; overflow-y: auto;
+      z-index: 100; backdrop-filter: blur(20px);
+    }
+    .admin-brand { display: flex; align-items: center; gap: 12px; margin-bottom: 40px; }
+    .admin-brand-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: linear-gradient(135deg, rgba(245,200,66,0.2), rgba(212,148,26,0.1));
+      border: 1px solid rgba(245,200,66,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; font-weight: 800; color: var(--admin-gold);
+    }
+    .admin-brand-text h3 { margin: 0; font-size: 16px; font-weight: 800; color: #fff; }
+    .admin-brand-text p { margin: 2px 0 0; font-size: 11px; color: var(--admin-gold); text-transform: uppercase; letter-spacing: 1px; }
+
+    .admin-nav { display: flex; flex-direction: column; gap: 6px; flex: 1; }
+    .admin-nav-item {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 18px; border-radius: 12px;
+      color: var(--text-3); font-size: 14px; font-weight: 600;
+      cursor: pointer; transition: all 0.25s ease;
+      border: 1px solid transparent;
+    }
+    .admin-nav-item:hover, .admin-nav-item.active {
+      background: rgba(245, 200, 66, 0.1);
+      border-color: rgba(245, 200, 66, 0.25);
+      color: var(--admin-gold);
+      transform: translateX(4px);
+    }
+    .admin-nav-icon { font-size: 18px; }
+
+    .admin-sidebar-footer { padding-top: 24px; border-top: 1px solid var(--admin-border); }
+    .admin-logout-btn {
+      width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px;
+      padding: 12px; border-radius: 10px; background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.2); color: #f87171;
+      font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s ease;
+    }
+    .admin-logout-btn:hover { background: rgba(239, 68, 68, 0.2); }
+
+    /* Main Area */
+    .admin-main { margin-left: 270px; flex: 1; padding: 36px 44px; min-height: 100vh; }
+    
+    .admin-topbar {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 36px; padding-bottom: 24px;
+      border-bottom: 1px solid var(--admin-border);
+    }
+    .at-title h1 { margin: 0; font-size: 26px; font-weight: 800; color: #fff; }
+    .at-title p { margin: 4px 0 0; font-size: 13px; color: var(--text-3); }
+    .at-right { display: flex; align-items: center; gap: 16px; }
+    .at-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 16px; border-radius: 30px;
+      background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3);
+      color: #4ade80; font-size: 12px; font-weight: 700;
+    }
+    .at-badge-dot { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; animation: pulse 2s infinite; }
+    @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
+
+    /* KPI Stat Grid */
+    .stat-cards-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;
+      margin-bottom: 36px;
+    }
+    .stat-card-box {
+      background: var(--admin-surface);
+      border: 1px solid var(--admin-border);
+      border-radius: 16px; padding: 24px;
+      position: relative; overflow: hidden;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      transition: transform 0.3s ease, border-color 0.3s ease;
+    }
+    .stat-card-box:hover {
+      transform: translateY(-4px);
+      border-color: rgba(245, 200, 66, 0.4);
+    }
+    .stat-card-box::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--admin-gold), transparent);
+    }
+    .scb-icon { font-size: 28px; margin-bottom: 12px; }
+    .scb-num { font-size: 36px; font-weight: 900; color: #fff; font-family: var(--font-display); }
+    .scb-label { font-size: 13px; color: var(--text-3); font-weight: 600; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* Panels & Tables */
+    .admin-panel-card {
+      background: var(--admin-surface);
+      border: 1px solid var(--admin-border);
+      border-radius: 20px; padding: 32px;
+      margin-bottom: 32px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.5);
+      backdrop-filter: blur(16px);
+    }
+    .apc-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 24px; flex-wrap: wrap; gap: 16px;
+    }
+    .apc-title { font-size: 20px; font-weight: 800; color: #fff; }
+    .apc-controls { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+
+    .search-box {
+      padding: 10px 18px; border-radius: 10px;
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+      color: #fff; font-family: var(--font-body); font-size: 13px;
+      min-width: 240px; outline: none; transition: all 0.2s;
+    }
+    .search-box:focus { border-color: var(--admin-gold); }
+    
+    .filter-select {
+      padding: 10px 14px; border-radius: 10px;
+      background: rgba(18, 14, 5, 0.9); border: 1px solid rgba(255,255,255,0.1);
+      color: var(--text-2); font-family: var(--font-body); font-size: 13px;
+      cursor: pointer; outline: none;
+    }
+    .filter-select:focus { border-color: var(--admin-gold); }
+
+    .btn-action-gold {
+      padding: 10px 20px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--admin-gold), #d4941a);
+      color: #000; font-weight: 800; font-size: 13px;
+      border: none; cursor: pointer; transition: all 0.2s;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-action-gold:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(245,200,66,0.3); }
+
+    /* CRM Table */
+    .crm-table-container { overflow-x: auto; }
+    .crm-table { width: 100%; border-collapse: collapse; text-align: left; }
+    .crm-table th {
+      padding: 14px 16px; font-size: 11px; font-weight: 700;
+      color: var(--admin-gold); text-transform: uppercase; letter-spacing: 1px;
+      border-bottom: 1px solid var(--admin-border);
+    }
+    .crm-table td {
+      padding: 18px 16px; font-size: 13px; color: var(--text-2);
+      border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: middle;
+    }
+    .crm-table tr:hover td { background: rgba(245, 200, 66, 0.02); }
+    
+    .candidate-name { font-weight: 800; color: #fff; font-size: 14px; margin-bottom: 2px; }
+    .candidate-email { font-size: 12px; color: var(--text-3); }
+    .candidate-phone { font-family: monospace; font-size: 13px; color: var(--admin-gold); font-weight: 700; }
+    
+    .badge-status {
+      display: inline-block; padding: 4px 10px; border-radius: 20px;
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+    }
+    .status-new { background: rgba(245,200,66,0.15); color: var(--admin-gold); border: 1px solid rgba(245,200,66,0.3); }
+    .status-contacted { background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
+    .status-enrolled { background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
+    
+    .action-group { display: flex; gap: 8px; align-items: center; }
+    .btn-contact {
+      padding: 7px 12px; border-radius: 8px; font-size: 12px; font-weight: 700;
+      text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+      transition: all 0.2s;
+    }
+    .btn-contact-wa {
+      background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.3);
+      color: #4ade80;
+    }
+    .btn-contact-wa:hover { background: rgba(34, 197, 94, 0.3); transform: scale(1.05); }
+    .btn-contact-call {
+      background: rgba(245, 200, 66, 0.15); border: 1px solid rgba(245, 200, 66, 0.3);
+      color: var(--admin-gold);
+    }
+    .btn-contact-call:hover { background: rgba(245, 200, 66, 0.3); transform: scale(1.05); }
+    .btn-delete {
+      background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #f87171; padding: 7px 10px; border-radius: 8px; font-size: 12px; font-weight: 700;
+      cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 5px;
+    }
+    .btn-delete:hover { background: rgba(239, 68, 68, 0.28); transform: scale(1.05); }
+    .date-cell { font-size: 11px; color: var(--text-3); line-height: 1.6; }
+
+    /* Login Modal */
+    .login-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.95);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 99999; backdrop-filter: blur(25px);
+    }
+    .login-box {
+      background: rgba(18, 14, 5, 0.95);
+      border: 1px solid var(--admin-border);
+      border-radius: 24px; padding: 44px; width: 400px; max-width: 90%;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.8), 0 0 40px rgba(245,200,66,0.1);
+      text-align: center; position: relative;
+    }
+    .login-box h2 { font-size: 24px; font-weight: 800; color: #fff; margin-bottom: 8px; }
+    .login-box p { font-size: 13px; color: var(--text-3); margin-bottom: 28px; }
+    .login-input {
+      width: 100%; padding: 14px 18px; margin-bottom: 16px;
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px; color: #fff; font-family: var(--font-body); font-size: 14px;
+      outline: none; box-sizing: border-box; transition: all 0.2s;
+    }
+    .login-input:focus { border-color: var(--admin-gold); }
+    .login-btn {
+      width: 100%; padding: 14px; border-radius: 12px;
+      background: linear-gradient(135deg, var(--admin-gold), #d4941a);
+      color: #000; font-weight: 800; font-size: 15px; border: none; cursor: pointer;
+      margin-top: 8px; transition: all 0.2s;
+    }
+    .login-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(245,200,66,0.3); }
+    .login-hint {
+      margin-top: 20px; padding: 12px; border-radius: 10px;
+      background: rgba(245,200,66,0.06); border: 1px solid rgba(245,200,66,0.15);
+      font-size: 12px; color: var(--admin-gold); text-align: left;
+    }
+    .login-error { color: #f87171; font-size: 13px; margin-top: 12px; display: none; }
+
+    @media (max-width: 1024px) {
+      .stat-cards-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 768px) {
+      .admin-sidebar { display: none; }
+      .admin-main { margin-left: 0; padding: 24px 16px; }
+      .stat-cards-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- LOGIN OVERLAY -->
+  <div class="login-overlay" id="loginOverlay">
+    <div class="login-box">
+      <div style="font-size:44px;margin-bottom:12px">🏛️</div>
+      <h2>Mujtaba Forex Trader</h2>
+      <p>Executive Administrative Portal</p>
+      <input type="text" id="loginUser" class="login-input" placeholder="Username" value="mujtaba" autocomplete="username"/>
+      <input type="password" id="loginPass" class="login-input" placeholder="Password" value="admin@gold2026" autocomplete="current-password"/>
+      <button class="login-btn" onclick="doLogin()">Access Portal 🔐</button>
+      <div class="login-error" id="loginError">Invalid credentials. Please recheck.</div>
+      
+      <div class="login-hint">
+        <strong>Default Admin Credentials:</strong><br/>
+        • Username: <code style="color:#fff">mujtaba</code><br/>
+        • Password: <code style="color:#fff">admin@gold2026</code>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN LAYOUT -->
+  <div class="admin-layout" id="adminPanel" style="display:none">
+    
+    <!-- SIDEBAR -->
+    <aside class="admin-sidebar">
+      <div class="admin-brand">
+        <div class="admin-brand-icon">M</div>
+        <div class="admin-brand-text">
+          <h3>Mujtaba Forex</h3>
+          <p>Institutional CRM</p>
+        </div>
+      </div>
+
+      <nav class="admin-nav">
+        <div class="admin-nav-item active" onclick="showTab('candidates')">
+          <span class="admin-nav-icon">🎓</span>
+          <span>Candidate Dossiers</span>
+        </div>
+        <div class="admin-nav-item" onclick="showTab('signals')">
+          <span class="admin-nav-icon">📡</span>
+          <span>Broadcast Signals</span>
+        </div>
+        <div class="admin-nav-item" onclick="showTab('inquiries')">
+          <span class="admin-nav-icon">✉️</span>
+          <span>Desk Inquiries</span>
+        </div>
+        <div class="admin-nav-item" onclick="window.open('index.html', '_blank')">
+          <span class="admin-nav-icon">🌐</span>
+          <span>View Public Site</span>
+        </div>
+      </nav>
+
+      <div class="admin-sidebar-footer">
+        <button class="admin-logout-btn" onclick="doLogout()">
+          <span>Exit Portal</span>
+          <span>🚪</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- MAIN DASHBOARD CONTENT -->
+    <main class="admin-main">
+      <div class="admin-topbar">
+        <div class="at-title">
+          <h1 id="viewTitle">Candidate Enrollment Dossiers</h1>
+          <p>Live candidate admissions synced directly with your Supabase database.</p>
+        </div>
+        <div class="at-right">
+          <div class="at-badge">
+            <span class="at-badge-dot"></span>
+            <span>Supabase Live Connected</span>
+          </div>
+          <button class="btn-action-gold" onclick="loadEnrollments()">
+            <span>↻ Refresh</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- KPI METRICS -->
+      <div class="stat-cards-grid">
+        <div class="stat-card-box">
+          <div class="scb-icon">🎓</div>
+          <div class="scb-num" id="totalCount">0</div>
+          <div class="scb-label">Total Applicants</div>
+        </div>
+        <div class="stat-card-box">
+          <div class="scb-icon">⚡</div>
+          <div class="scb-num" id="newCount" style="color:var(--admin-gold)">0</div>
+          <div class="scb-label">New Uncontacted</div>
+        </div>
+        <div class="stat-card-box">
+          <div class="scb-icon">🥇</div>
+          <div class="scb-num" id="goldCount" style="color:#60a5fa">0</div>
+          <div class="scb-label">Gold Pro Applicants</div>
+        </div>
+        <div class="stat-card-box">
+          <div class="scb-icon">✅</div>
+          <div class="scb-num" id="enrolledCount" style="color:#4ade80">0</div>
+          <div class="scb-label">Confirmed Enrolled</div>
+        </div>
+      </div>
+
+      <!-- TAB 1: CANDIDATE DOSSIERS -->
+      <div id="tab-candidates">
+        <div class="admin-panel-card">
+          <div class="apc-header">
+            <div class="apc-title">All Candidate Submissions (<span id="tableCount">0</span>)</div>
+            <div class="apc-controls">
+              <input type="text" id="searchInput" class="search-box" placeholder="🔍 Search name, phone, city..." oninput="filterCandidates()"/>
+              <select id="courseFilter" class="filter-select" onchange="filterCandidates()">
+                <option value="">All Programs</option>
+                <option value="Gold Pro">Gold Pro</option>
+                <option value="Fundamentals">Fundamentals</option>
+                <option value="Advanced">Advanced</option>
+              </select>
+              <select id="statusFilter" class="filter-select" onchange="filterCandidates()">
+                <option value="">All Statuses</option>
+                <option value="New">New</option>
+                <option value="Contacted">Contacted</option>
+                <option value="Enrolled">Enrolled</option>
+              </select>
+              <button class="btn-action-gold" onclick="exportCSV()">
+                <span>📥 Export CSV</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="crm-table-container">
+            <table class="crm-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Candidate Details</th>
+                  <th>Contact Phone</th>
+                  <th>City / Location</th>
+                  <th>Experience</th>
+                  <th>Target Program</th>
+                  <th>Status</th>
+                  <th>Applied At</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="candidatesTbody">
+                <tr>
+                  <td colspan="9" style="text-align:center;padding:40px;color:var(--text-3)">
+                    Loading live candidate records from Supabase...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: BROADCAST SIGNALS -->
+      <div id="tab-signals" style="display:none">
+        <div class="admin-panel-card">
+          <div class="apc-header">
+            <div class="apc-title">Broadcast Institutional Signal</div>
+          </div>
+          <form id="signalPostForm" style="display:grid;grid-template-columns:repeat(3, 1fr);gap:16px" onsubmit="postSignal(event)">
+            <div>
+              <label style="font-size:12px;color:var(--admin-gold);display:block;margin-bottom:6px">Instrument Pair</label>
+              <input type="text" id="sigPair" class="login-input" value="XAU/USD (Gold)" required/>
+            </div>
+            <div>
+              <label style="font-size:12px;color:var(--admin-gold);display:block;margin-bottom:6px">Order Direction</label>
+              <select id="sigType" class="login-input" style="background:#181406">
+                <option value="BUY">BUY</option>
+                <option value="SELL">SELL</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size:12px;color:var(--admin-gold);display:block;margin-bottom:6px">Entry Price</label>
+              <input type="text" id="sigEntry" class="login-input" placeholder="e.g. 2655.00" required/>
+            </div>
+            <div>
+              <label style="font-size:12px;color:var(--admin-gold);display:block;margin-bottom:6px">Stop Loss</label>
+              <input type="text" id="sigSL" class="login-input" placeholder="e.g. 2640.00" required/>
+            </div>
+            <div>
+              <label style="font-size:12px;color:var(--admin-gold);display:block;margin-bottom:6px">Take Profit 1</label>
+              <input type="text" id="sigTP1" class="login-input" placeholder="e.g. 2670.00" required/>
+            </div>
+            <div>
+              <label style="font-size:12px;color:var(--admin-gold);display:block;margin-bottom:6px">Take Profit 2</label>
+              <input type="text" id="sigTP2" class="login-input" placeholder="e.g. 2685.00"/>
+            </div>
+            <div style="grid-column:1 / -1">
+              <label style="font-size:12px;color:var(--admin-gold);display:block;margin-bottom:6px">Institutional Technical Rationale</label>
+              <textarea id="sigNotes" class="login-input" rows="3" placeholder="Order block mitigation, session timing, FVG..."></textarea>
+            </div>
+            <div style="grid-column:1 / -1">
+              <button type="submit" class="btn-action-gold" style="padding:14px 28px;font-size:14px">
+                <span>📡 Broadcast Live Signal</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- TAB 3: DESK INQUIRIES -->
+      <div id="tab-inquiries" style="display:none">
+        <div class="admin-panel-card">
+          <div class="apc-header">
+            <div class="apc-title">General Desk Inquiries</div>
+          </div>
+          <div class="crm-table-container">
+            <table class="crm-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Phone</th>
+                  <th>Email</th>
+                  <th>Subject</th>
+                  <th>Message</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody id="inquiriesTbody">
+                <tr><td colspan="6" style="text-align:center;padding:30px;color:var(--text-3)">Loading inquiries...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <canvas id="particles" class="particles-canvas" style="z-index:-1"></canvas>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase.js"></script>
+  <script src="script.js"></script>
+  <script>
+    let allCandidates = [];
+
+    // LOGIN AUTHENTICATION
+    function doLogin() {
+      const u = document.getElementById('loginUser').value.trim();
+      const p = document.getElementById('loginPass').value.trim();
+      if ((u === 'mujtaba' || u === 'admin') && (p === 'admin@gold2026' || p === 'mujtaba123')) {
+        document.getElementById('loginOverlay').style.display = 'none';
+        document.getElementById('adminPanel').style.display = 'flex';
+        loadEnrollments();
+      } else {
+        document.getElementById('loginError').style.display = 'block';
+      }
+    }
+    document.addEventListener('keypress', e => { if (e.key === 'Enter' && document.getElementById('loginOverlay').style.display !== 'none') doLogin(); });
+
+    function doLogout() {
+      document.getElementById('adminPanel').style.display = 'none';
+      document.getElementById('loginOverlay').style.display = 'flex';
+    }
+
+    // TABS
+    function showTab(tab) {
+      ['candidates', 'signals', 'inquiries'].forEach(t => {
+        document.getElementById('tab-' + t).style.display = t === tab ? 'block' : 'none';
+      });
+      document.querySelectorAll('.admin-nav-item').forEach((item, i) => {
+        item.classList.toggle('active', ['candidates','signals','inquiries'][i] === tab);
+      });
+      document.getElementById('viewTitle').textContent = {
+        candidates: 'Candidate Enrollment Dossiers',
+        signals: 'Broadcast Institutional Signals',
+        inquiries: 'Direct Desk Inquiries'
+      }[tab] || 'Portal';
+
+      if (tab === 'inquiries') loadInquiries();
+    }
+
+    // LOAD LIVE ENROLLMENTS FROM SUPABASE
+    async function loadEnrollments() {
+      try {
+        if (!window.SupabaseDB) return;
+        const data = await window.SupabaseDB.getEnrollments();
+        allCandidates = data || [];
+
+        // Update KPIs
+        document.getElementById('totalCount').textContent = allCandidates.length;
+        document.getElementById('newCount').textContent = allCandidates.filter(c => (c.status || 'New') === 'New').length;
+        document.getElementById('goldCount').textContent = allCandidates.filter(c => (c.course || '').toLowerCase().includes('gold')).length;
+        document.getElementById('enrolledCount').textContent = allCandidates.filter(c => c.status === 'Enrolled').length;
+        document.getElementById('tableCount').textContent = allCandidates.length;
+
+        renderCandidates(allCandidates);
+      } catch (err) {
+        console.error('Failed to load enrollments:', err);
+      }
+    }
+
+    function renderCandidates(list) {
+      const tbody = document.getElementById('candidatesTbody');
+      if (!list || list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-3)">No candidate applications found.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = list.map((c, i) => {
+        const cleanPhone = (c.phone || '').replace(/[^0-9]/g, '');
+        const waLink = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(`Hello ${c.name || 'there'}, this is Mujtaba from Mujtaba Forex Trader regarding your candidate application for the ${c.course || 'Gold Pro'} mentorship track.`)}`;
+        const callLink = `tel:${c.phone || ''}`;
+        const dt = c.created_at ? new Date(c.created_at) : null;
+        const dateStr = dt ? dt.toLocaleDateString('en-PK', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
+        const timeStr = dt ? dt.toLocaleTimeString('en-PK', { hour: '2-digit', minute: '2-digit', hour12: true }) : '';
+        const status = c.status || 'New';
+
+        return `
+          <tr id="row-${c.id}">
+            <td>${i + 1}</td>
+            <td>
+              <div class="candidate-name">${escapeHtml(c.name || 'Anonymous')}</div>
+              <div class="candidate-email">${escapeHtml(c.email || 'No email provided')}</div>
+            </td>
+            <td>
+              <div class="candidate-phone">${escapeHtml(c.phone || '—')}</div>
+            </td>
+            <td>${escapeHtml(c.city || '—')}</td>
+            <td><strong>${escapeHtml(c.level || 'Beginner')}</strong></td>
+            <td><span class="course-chip">${escapeHtml(c.course || 'Gold Pro')}</span></td>
+            <td>
+              <select onchange="updateStatus(${c.id}, this.value)" class="filter-select" style="padding:4px 8px;font-size:11px">
+                <option value="New" ${status === 'New' ? 'selected' : ''}>New</option>
+                <option value="Contacted" ${status === 'Contacted' ? 'selected' : ''}>Contacted</option>
+                <option value="Enrolled" ${status === 'Enrolled' ? 'selected' : ''}>Enrolled</option>
+              </select>
+            </td>
+            <td>
+              <div class="date-cell">${dateStr}</div>
+              <div class="date-cell" style="color:var(--admin-gold);font-size:10px">${timeStr}</div>
+            </td>
+            <td>
+              <div class="action-group" style="flex-wrap:wrap;gap:6px">
+                <a href="${waLink}" target="_blank" class="btn-contact btn-contact-wa" title="WhatsApp">
+                  <span>💬 WhatsApp</span>
+                </a>
+                <a href="${callLink}" class="btn-contact btn-contact-call" title="Call">
+                  <span>📞 Call</span>
+                </a>
+                <button onclick="deleteCandidate(${c.id}, '${escapeHtml(c.name || 'this candidate')}')" class="btn-delete" title="Delete permanently">
+                  🗑️ Delete
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // UPDATE CANDIDATE STATUS
+    async function updateStatus(id, newStatus) {
+      try {
+        const client = window.SupabaseDB.getClient();
+        if (client) {
+          await client.from('enrollments').update({ status: newStatus }).eq('id', id);
+          loadEnrollments();
+        }
+      } catch (err) {
+        console.error('Failed to update status:', err);
+      }
+    }
+
+    // DELETE CANDIDATE PERMANENTLY
+    async function deleteCandidate(id, name) {
+      const confirmed = confirm(`⚠️ Permanently delete record of "${name}"?\n\nYeh action undo nahi ho sakta. Confirm karein?`);
+      if (!confirmed) return;
+      try {
+        const client = window.SupabaseDB.getClient();
+        if (!client) return;
+        const { error } = await client.from('enrollments').delete().eq('id', id);
+        if (error) throw error;
+        // Remove row from UI instantly
+        const row = document.getElementById('row-' + id);
+        if (row) row.remove();
+        // Refresh data & KPIs
+        allCandidates = allCandidates.filter(c => c.id !== id);
+        document.getElementById('totalCount').textContent = allCandidates.length;
+        document.getElementById('newCount').textContent = allCandidates.filter(c => (c.status || 'New') === 'New').length;
+        document.getElementById('goldCount').textContent = allCandidates.filter(c => (c.course || '').toLowerCase().includes('gold')).length;
+        document.getElementById('enrolledCount').textContent = allCandidates.filter(c => c.status === 'Enrolled').length;
+        document.getElementById('tableCount').textContent = allCandidates.length;
+        if (allCandidates.length === 0) {
+          document.getElementById('candidatesTbody').innerHTML = `<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-3)">No candidate applications found.</td></tr>`;
+        }
+      } catch (err) {
+        alert('Delete failed. Please try again.');
+        console.error('Delete error:', err);
+      }
+    }
+
+    // FILTER CANDIDATES
+    function filterCandidates() {
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      const course = document.getElementById('courseFilter').value.toLowerCase();
+      const status = document.getElementById('statusFilter').value.toLowerCase();
+
+      const filtered = allCandidates.filter(c => {
+        const text = `${c.name} ${c.phone} ${c.city} ${c.email}`.toLowerCase();
+        const matchesQuery = !q || text.includes(q);
+        const matchesCourse = !course || (c.course || '').toLowerCase().includes(course);
+        const matchesStatus = !status || (c.status || 'new').toLowerCase() === status;
+        return matchesQuery && matchesCourse && matchesStatus;
+      });
+
+      document.getElementById('tableCount').textContent = filtered.length;
+      renderCandidates(filtered);
+    }
+
+    // EXPORT CSV
+    function exportCSV() {
+      if (!allCandidates || allCandidates.length === 0) {
+        alert('No candidate records to export.');
+        return;
+      }
+      const headers = ['ID', 'Full Name', 'Phone', 'Email', 'City', 'Level', 'Course', 'Status', 'Applied At'];
+      const rows = allCandidates.map(c => [
+        c.id,
+        `"${(c.name || '').replace(/"/g, '""')}"`,
+        `"${c.phone || ''}"`,
+        `"${c.email || ''}"`,
+        `"${(c.city || '').replace(/"/g, '""')}"`,
+        `"${c.level || ''}"`,
+        `"${(c.course || '').replace(/"/g, '""')}"`,
+        `"${c.status || 'New'}"`,
+        `"${c.created_at || ''}"`
+      ]);
+
+      const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `mujtaba_candidates_${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+    }
+
+    // POST SIGNAL
+    async function postSignal(e) {
+      e.preventDefault();
+      const signal = {
+        pair: document.getElementById('sigPair').value,
+        type: document.getElementById('sigType').value,
+        entry_price: document.getElementById('sigEntry').value,
+        stop_loss: document.getElementById('sigSL').value,
+        take_profit_1: document.getElementById('sigTP1').value,
+        take_profit_2: document.getElementById('sigTP2').value || null,
+        notes: document.getElementById('sigNotes').value || null,
+        status: 'Active'
+      };
+
+      try {
+        if (window.SupabaseDB) {
+          await window.SupabaseDB.insertSignal(signal);
+          alert('✅ Signal successfully broadcasted to Supabase database!');
+          e.target.reset();
+        }
+      } catch (err) {
+        alert('Failed to broadcast signal. Please check console.');
+        console.error(err);
+      }
+    }
+
+    // LOAD INQUIRIES
+    async function loadInquiries() {
+      try {
+        const client = window.SupabaseDB.getClient();
+        if (!client) return;
+        const { data } = await client.from('contacts').select('*').order('created_at', { ascending: false });
+        const tbody = document.getElementById('inquiriesTbody');
+        if (!data || data.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--text-3)">No inquiries yet.</td></tr>`;
+          return;
+        }
+        tbody.innerHTML = data.map(inq => `
+          <tr>
+            <td><strong>${escapeHtml(inq.name)}</strong></td>
+            <td style="color:var(--admin-gold)">${escapeHtml(inq.phone || '—')}</td>
+            <td>${escapeHtml(inq.email || '—')}</td>
+            <td><span class="course-chip">${escapeHtml(inq.subject || 'General')}</span></td>
+            <td>${escapeHtml(inq.message || '')}</td>
+            <td style="font-size:11px;color:var(--text-3)">${new Date(inq.created_at).toLocaleDateString()}</td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+    }
+  </script>
+</body>
+</html>
