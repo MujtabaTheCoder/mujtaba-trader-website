@@ -1167,6 +1167,10 @@
 /* ═══════════════════════════════════════
    RESPONSIVE — PAGES
    ═══════════════════════════════════════ */
+/* Global overflow guard for pages */
+html, body { overflow-x: hidden; max-width: 100%; }
+section, .section-container { max-width: 100%; box-sizing: border-box; }
+
 @media (max-width: 1024px) {
   .story-grid       { grid-template-columns: 1fr; }
   .story-img-frame  { max-width: 460px; margin: 0 auto; }
@@ -1216,9 +1220,10 @@
    ═══════════════════════════════════════ */
 .signals-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr));
   gap: 24px;
   margin-top: 32px;
+  max-width: 100%;
 }
 
 .signal-card {

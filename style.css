@@ -51,6 +51,9 @@
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 80px;
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100%;
 }
 
 body {
@@ -58,8 +61,42 @@ body {
   background: var(--dark-0);
   color: var(--text-1);
   overflow-x: hidden;
+  width: 100%;
+  max-width: 100%;
+  position: relative;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+}
+
+section,
+header,
+footer,
+main,
+nav,
+.section-container,
+.hero,
+.about,
+.services,
+.gold-section,
+.why-us,
+.signals-main,
+.enroll,
+.footer,
+.service-card,
+.why-card,
+.stat-card,
+.gold-img-container,
+.enroll-form,
+.form-container,
+.skills-grid,
+.about-content,
+.about-image-wrap {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+section {
+  overflow-x: clip;
 }
 
 img { max-width: 100%; display: block; }
@@ -90,8 +127,10 @@ ul { list-style: none; }
 
 .section-container {
   max-width: 1200px;
+  width: 100%;
   margin: 0 auto;
   padding: 0 24px;
+  box-sizing: border-box;
 }
 
 .section-tag {
@@ -618,6 +657,8 @@ ul { list-style: none; }
   z-index: 2;
   padding: 120px 0;
   background: linear-gradient(180deg, var(--dark-0) 0%, var(--dark-2) 100%);
+  overflow: hidden;
+  max-width: 100%;
 }
 
 .about-grid {
@@ -625,16 +666,22 @@ ul { list-style: none; }
   grid-template-columns: 1fr 1fr;
   gap: 80px;
   align-items: center;
+  max-width: 100%;
 }
 
 /* 3D Avatar */
 .about-image-wrap {
   display: flex;
   justify-content: center;
+  max-width: 100%;
+  overflow: visible;
 }
 .about-img-3d {
   position: relative;
-  width: 340px; height: 340px;
+  width: 340px;
+  max-width: 100%;
+  aspect-ratio: 1 / 1;
+  height: auto;
   transform-style: preserve-3d;
 }
 .img-glow-ring {
@@ -687,7 +734,7 @@ ul { list-style: none; }
 }
 
 /* About Content */
-.about-content { display: flex; flex-direction: column; gap: 0; }
+.about-content { display: flex; flex-direction: column; gap: 0; min-width: 0; max-width: 100%; }
 .about-text {
   font-size: 16px;
   color: var(--text-3);
@@ -702,9 +749,11 @@ ul { list-style: none; }
   flex-direction: column;
   gap: 18px;
   margin-top: 28px;
+  min-width: 0;
+  max-width: 100%;
 }
-.skill-item { display: flex; flex-direction: column; gap: 6px; }
-.skill-bar-wrap { display: flex; justify-content: space-between; }
+.skill-item { display: flex; flex-direction: column; gap: 6px; min-width: 0; max-width: 100%; }
+.skill-bar-wrap { display: flex; justify-content: space-between; min-width: 0; max-width: 100%; }
 .skill-name { font-size: 14px; font-weight: 500; color: var(--text-2); }
 .skill-pct  { font-size: 13px; font-weight: 700; color: var(--gold-1); }
 .skill-track {
@@ -731,12 +780,15 @@ ul { list-style: none; }
   z-index: 2;
   padding: 120px 0;
   background: var(--dark-1);
+  overflow: hidden;
+  max-width: 100%;
 }
 
 .services-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 24px;
+  max-width: 100%;
 }
 
 .service-card {
@@ -748,6 +800,9 @@ ul { list-style: none; }
   transition: all var(--transition);
   overflow: hidden;
   cursor: pointer;
+  max-width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
 }
 .service-card::before {
   content: '';
@@ -912,9 +967,10 @@ ul { list-style: none; }
 
 .gold-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 80px;
   align-items: center;
+  max-width: 100%;
 }
 
 .gold-desc {
@@ -964,6 +1020,12 @@ ul { list-style: none; }
 }
 
 /* Gold Visual */
+.gold-visual {
+  min-width: 0;
+  max-width: 100%;
+  overflow: visible;
+  padding: 30px 20px;
+}
 .gold-img-container {
   position: relative;
   border-radius: var(--radius-xl);
@@ -1459,6 +1521,7 @@ ul { list-style: none; }
   .hero-cta       { justify-content: center; }
   .about-grid     { grid-template-columns: 1fr; gap: 40px; }
   .about-image-wrap { order: -1; }
+  .services-grid  { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .gold-grid      { grid-template-columns: 1fr; gap: 48px; }
   .gold-visual    { order: -1; }
   .enroll-wrapper { grid-template-columns: 1fr; }
@@ -1473,17 +1536,48 @@ ul { list-style: none; }
   .nav-link { font-size: 22px; padding: 14px 32px; }
   .hamburger { display: flex; z-index: 1000; }
   .services-grid { grid-template-columns: 1fr; }
+  .service-card { padding: 32px 24px; }
   .why-grid { grid-template-columns: 1fr 1fr; }
   .footer-grid { grid-template-columns: 1fr; }
-  .hero-stats { flex-direction: column; gap: 16px; padding: 20px; }
+  .hero-stats { flex-direction: column; gap: 16px; padding: 20px; width: 100%; max-width: 100%; }
   .stat-divider { width: 80%; height: 1px; }
   .enroll-form { padding: 24px; }
+  .reveal-left,
+  .reveal-right {
+    transform: translateY(25px);
+  }
+  .reveal-left.visible,
+  .reveal-right.visible {
+    transform: translateY(0);
+  }
 }
 
 @media (max-width: 480px) {
+  .section-container { padding: 0 16px; }
+  .about-img-3d { width: 260px; height: 260px; max-width: calc(100vw - 48px); }
+  .img-glow-ring { inset: -10px; }
+  .badge-floating { right: 0; bottom: 10px; padding: 8px 14px; font-size: 12px; }
+  .gold-price-badge { right: 0; top: -10px; padding: 10px 14px; }
+  .gold-candles { left: 10px; bottom: -10px; padding: 8px 12px; }
+  .form-glow { right: 0; top: -20px; width: 200px; height: 200px; }
   .why-grid { grid-template-columns: 1fr; }
-  .title-line-2 { font-size: 48px; }
-  .hero-content { padding-bottom: 80px; }
+  .why-card { padding: 28px 20px; }
+  .service-card { padding: 28px 18px; }
+  .service-title { font-size: 20px; }
+  .service-desc { font-size: 13px; }
+  .service-btn { padding: 12px 18px; font-size: 13px; }
+  .title-line-1 { font-size: 22px; }
+  .title-line-2 { font-size: 38px; }
+  .title-line-3 { font-size: 22px; }
+  .hero-content { padding: 40px 16px 60px; }
+  .hero-cta { flex-direction: column; width: 100%; }
+  .hero-cta .btn-primary, .hero-cta .btn-ghost { width: 100%; justify-content: center; text-align: center; }
+  .btn-primary, .btn-ghost { padding: 12px 20px; font-size: 14px; text-align: center; white-space: normal; }
+  .enroll-form { padding: 20px 16px; }
+  .official-badge-card { padding: 14px 16px; }
+  .skills-grid { gap: 14px; }
+  .skill-name { font-size: 13px; }
+  .skill-pct { font-size: 12px; }
 }
 
 /* ══════════════════════════════════════════
