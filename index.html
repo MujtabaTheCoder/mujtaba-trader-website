@@ -149,6 +149,17 @@
       </div>
     </div>
 
+    <!-- 3D Globe — Global Traders -->
+    <div class="globe-wrapper">
+      <div class="globe-label">
+        <span class="globe-pulse"></span>
+        <span id="liveTraderCount">500+</span> Traders Worldwide
+      </div>
+      <canvas id="globeCanvas" width="340" height="340"></canvas>
+      <div class="globe-ring globe-ring-1"></div>
+      <div class="globe-ring globe-ring-2"></div>
+    </div>
+
     <div class="hero-scroll">
       <div class="scroll-indicator"><div class="scroll-dot"></div></div>
       <span>Explore</span>
@@ -607,5 +618,220 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase.js"></script>
   <script src="script.js"></script>
+
+  <!-- Globe Script -->
+  <script>
+  (function() {
+    const canvas = document.getElementById('globeCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+    const cx = W / 2, cy = H / 2, R = W / 2 - 10;
+
+    // Trader locations: [lat, lon, flag emoji, city]
+    const traders = [
+      [  23.8,  90.4, '🇧🇩', 'Dhaka'],
+      [  31.5,  74.3, '🇵🇰', 'Lahore'],
+      [  24.9,  67.1, '🇵🇰', 'Karachi'],
+      [  33.7,  73.1, '🇵🇰', 'Islamabad'],
+      [  28.6,  77.2, '🇮🇳', 'Delhi'],
+      [  25.2,  55.3, '🇦🇪', 'Dubai'],
+      [  21.4,  39.8, '🇸🇦', 'Jeddah'],
+      [  51.5,  -0.1, '🇬🇧', 'London'],
+      [  40.7, -74.0, '🇺🇸', 'New York'],
+      [  34.1,  -118.2,'🇺🇸', 'LA'],
+      [  48.9,   2.3, '🇫🇷', 'Paris'],
+      [  52.5,  13.4, '🇩🇪', 'Berlin'],
+      [  35.7, 139.7, '🇯🇵', 'Tokyo'],
+      [ -33.9,  18.4, '🇿🇦', 'Cape Town'],
+      [   1.3, 103.8, '🇸🇬', 'Singapore'],
+      [ -23.5, -46.6, '🇧🇷', 'São Paulo'],
+      [  55.8,  37.6, '🇷🇺', 'Moscow'],
+      [  30.0,  31.2, '🇪🇬', 'Cairo'],
+      [  6.4,    3.4, '🇳🇬', 'Lagos'],
+      [ 19.1,  72.9,  '🇮🇳', 'Mumbai'],
+    ];
+
+    // Convert lat/lon to 3D sphere coords
+    function latLonTo3D(lat, lon, r) {
+      const phi   = (90 - lat) * Math.PI / 180;
+      const theta = (lon + 180) * Math.PI / 180;
+      return {
+        x: -r * Math.sin(phi) * Math.cos(theta),
+        y:  r * Math.cos(phi),
+        z:  r * Math.sin(phi) * Math.sin(theta)
+      };
+    }
+
+    // Rotate 3D point by yaw (Y-axis) and pitch (X-axis)
+    function rotate(p, yaw, pitch) {
+      // Yaw
+      let x1 = p.x * Math.cos(yaw) - p.z * Math.sin(yaw);
+      let z1 = p.x * Math.sin(yaw) + p.z * Math.cos(yaw);
+      // Pitch
+      let y2 = p.y * Math.cos(pitch) - z1 * Math.sin(pitch);
+      let z2 = p.y * Math.sin(pitch) + z1 * Math.cos(pitch);
+      return { x: x1, y: y2, z: z2 };
+    }
+
+    // Project 3D point to 2D
+    function project(p) {
+      return { x: cx + p.x, y: cy - p.y };
+    }
+
+    let yaw   = 0.4;
+    let pitch = 0.15;
+    let dragging = false;
+    let lastMX, lastMY;
+
+    canvas.addEventListener('mousedown', e => { dragging = true; lastMX = e.clientX; lastMY = e.clientY; });
+    window.addEventListener('mouseup',   () => { dragging = false; });
+    window.addEventListener('mousemove', e => {
+      if (!dragging) return;
+      yaw   += (e.clientX - lastMX) * 0.008;
+      pitch += (e.clientY - lastMY) * 0.005;
+      pitch  = Math.max(-1.2, Math.min(1.2, pitch));
+      lastMX = e.clientX; lastMY = e.clientY;
+    });
+
+    // Touch support
+    canvas.addEventListener('touchstart', e => { dragging = true; lastMX = e.touches[0].clientX; lastMY = e.touches[0].clientY; });
+    window.addEventListener('touchend',   () => { dragging = false; });
+    window.addEventListener('touchmove',  e => {
+      if (!dragging) return;
+      yaw   += (e.touches[0].clientX - lastMX) * 0.008;
+      pitch += (e.touches[0].clientY - lastMY) * 0.005;
+      lastMX = e.touches[0].clientX; lastMY = e.touches[0].clientY;
+    });
+
+    // Globe grid lines (lat/lon)
+    function drawGrid(yaw, pitch) {
+      ctx.strokeStyle = 'rgba(245,200,66,0.07)';
+      ctx.lineWidth = 0.8;
+
+      // Latitude lines
+      for (let lat = -80; lat <= 80; lat += 20) {
+        ctx.beginPath();
+        let first = true;
+        for (let lon = -180; lon <= 180; lon += 4) {
+          const p3 = latLonTo3D(lat, lon, R);
+          const r  = rotate(p3, yaw, pitch);
+          if (r.z < 0) { first = true; continue; }
+          const p2 = project(r);
+          first ? ctx.moveTo(p2.x, p2.y) : ctx.lineTo(p2.x, p2.y);
+          first = false;
+        }
+        ctx.stroke();
+      }
+
+      // Longitude lines
+      for (let lon = -180; lon <= 180; lon += 20) {
+        ctx.beginPath();
+        let first = true;
+        for (let lat = -90; lat <= 90; lat += 4) {
+          const p3 = latLonTo3D(lat, lon, R);
+          const r  = rotate(p3, yaw, pitch);
+          if (r.z < 0) { first = true; continue; }
+          const p2 = project(r);
+          first ? ctx.moveTo(p2.x, p2.y) : ctx.lineTo(p2.x, p2.y);
+          first = false;
+        }
+        ctx.stroke();
+      }
+    }
+
+    function drawTraders(yaw, pitch) {
+      traders.forEach((t, i) => {
+        const [lat, lon, flag, city] = t;
+        const p3 = latLonTo3D(lat, lon, R);
+        const r  = rotate(p3, yaw, pitch);
+        if (r.z < -10) return; // back side
+        const p2 = project(r);
+        const depth = (r.z + R) / (2 * R); // 0..1
+
+        // Outer glow ring
+        const grd = ctx.createRadialGradient(p2.x, p2.y, 0, p2.x, p2.y, 14);
+        grd.addColorStop(0, `rgba(245,200,66,${0.5 * depth})`);
+        grd.addColorStop(1, 'rgba(245,200,66,0)');
+        ctx.beginPath();
+        ctx.arc(p2.x, p2.y, 14, 0, Math.PI * 2);
+        ctx.fillStyle = grd;
+        ctx.fill();
+
+        // Dot
+        ctx.beginPath();
+        ctx.arc(p2.x, p2.y, 4 * depth + 2, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(245,200,66,${0.9 * depth + 0.1})`;
+        ctx.fill();
+
+        // Flag + city label (only front-facing)
+        if (r.z > 20) {
+          ctx.font = `${Math.floor(12 * depth + 8)}px serif`;
+          ctx.fillText(flag, p2.x + 6, p2.y - 6);
+          ctx.font = `${Math.floor(9 * depth + 6)}px Outfit, sans-serif`;
+          ctx.fillStyle = `rgba(255,230,150,${0.8 * depth})`;
+          ctx.fillText(city, p2.x + 6, p2.y + 10);
+        }
+      });
+    }
+
+    function drawConnections(yaw, pitch) {
+      // Draw arcs connecting some trader pairs
+      const pairs = [[0,1],[1,5],[5,6],[6,10],[3,7],[7,8],[15,10],[12,14],[18,13]];
+      pairs.forEach(([a, b]) => {
+        const pA = rotate(latLonTo3D(traders[a][0], traders[a][1], R), yaw, pitch);
+        const pB = rotate(latLonTo3D(traders[b][0], traders[b][1], R), yaw, pitch);
+        if (pA.z < 0 || pB.z < 0) return;
+        const a2 = project(pA), b2 = project(pB);
+        ctx.beginPath();
+        ctx.moveTo(a2.x, a2.y);
+        const mx = (a2.x + b2.x) / 2 - 20, my = (a2.y + b2.y) / 2 - 30;
+        ctx.quadraticCurveTo(mx, my, b2.x, b2.y);
+        ctx.strokeStyle = 'rgba(245,200,66,0.12)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      });
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+
+      // Globe base gradient
+      const bg = ctx.createRadialGradient(cx - R*0.3, cy - R*0.3, R*0.05, cx, cy, R);
+      bg.addColorStop(0, 'rgba(40,30,5,0.95)');
+      bg.addColorStop(0.6, 'rgba(15,10,1,0.97)');
+      bg.addColorStop(1, 'rgba(0,0,0,0.98)');
+      ctx.beginPath();
+      ctx.arc(cx, cy, R, 0, Math.PI * 2);
+      ctx.fillStyle = bg;
+      ctx.fill();
+
+      // Subtle gold glow on top-left
+      const shine = ctx.createRadialGradient(cx - R*0.4, cy - R*0.4, 0, cx - R*0.4, cy - R*0.4, R*0.7);
+      shine.addColorStop(0, 'rgba(245,200,66,0.07)');
+      shine.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.beginPath();
+      ctx.arc(cx, cy, R, 0, Math.PI * 2);
+      ctx.fillStyle = shine;
+      ctx.fill();
+
+      drawGrid(yaw, pitch);
+      drawConnections(yaw, pitch);
+      drawTraders(yaw, pitch);
+
+      // Globe border
+      ctx.beginPath();
+      ctx.arc(cx, cy, R, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(245,200,66,0.25)';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      if (!dragging) yaw += 0.003; // auto-spin
+      requestAnimationFrame(draw);
+    }
+
+    draw();
+  })();
+  </script>
 </body>
 </html>
