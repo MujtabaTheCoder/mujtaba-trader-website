@@ -659,37 +659,25 @@
   <script src="script.js"></script>
 
   <script>
-  // Home Page Signals Loader
+  // Home Page Real Signals Loader — ONLY REAL SIGNALS
   (async function loadHomeSignals() {
     const grid = document.getElementById('homeSignalsGrid');
     if (!grid) return;
 
-    const fallback = [
-      {
-        pair: 'XAU/USD',
-        type: 'BUY',
-        entry_price: '2,632.50',
-        stop_loss: '2,618.00',
-        take_profit_1: '2,648.00',
-        take_profit_2: '2,665.00',
-        status: 'Active',
-        pips: '+155 pips',
-        notes: 'Institutional Order Block retest at Asian session low. Clean liquidity sweep with bullish market structure shift on 15M.'
-      },
-      {
-        pair: 'XAU/USD',
-        type: 'SELL',
-        entry_price: '2,658.00',
-        stop_loss: '2,671.00',
-        take_profit_1: '2,642.00',
-        take_profit_2: '2,625.00',
-        status: 'Active',
-        pips: '+160 pips',
-        notes: 'Liquidity grab at 4H fair value gap premium zone. Target London session low imbalance fill.'
-      }
-    ];
-
     function render(list) {
+      if (!list || list.length === 0) {
+        grid.innerHTML = `
+          <div style="grid-column:1/-1;text-align:center;padding:50px 20px;background:rgba(255,220,80,0.02);border:1px dashed rgba(245,200,66,0.18);border-radius:14px;">
+            <div style="font-size:40px;margin-bottom:12px">📡</div>
+            <h3 style="color:#fff;font-size:18px;font-weight:800;margin-bottom:8px">No Active Signals Broadcasted Right Now</h3>
+            <p style="font-size:13px;color:var(--text-3);max-width:440px;margin:0 auto;line-height:1.6">
+              When Mujtaba Forex Desk broadcasts a live institutional signal, it will appear here instantly.
+            </p>
+          </div>
+        `;
+        return;
+      }
+
       grid.innerHTML = '';
       list.forEach(sig => {
         const isBuy = (sig.type || '').toUpperCase() === 'BUY';
@@ -723,9 +711,8 @@
     }
 
     // Try Supabase fetch with retry
-    let loaded = false;
     let attempts = 0;
-    while (!window.SupabaseDB?.getClient() && attempts < 12) {
+    while (!window.SupabaseDB?.getClient() && attempts < 15) {
       await new Promise(r => setTimeout(r, 200));
       attempts++;
     }
@@ -733,16 +720,14 @@
     try {
       if (window.SupabaseDB) {
         const signals = await window.SupabaseDB.getSignals();
-        if (signals && signals.length > 0) {
-          render(signals.slice(0, 3));
-          loaded = true;
-        }
+        render(signals || []);
+        return;
       }
     } catch (e) {
       console.warn('Home signal fetch err:', e);
     }
 
-    if (!loaded) render(fallback);
+    render([]);
   })();
   </script>
 </body>

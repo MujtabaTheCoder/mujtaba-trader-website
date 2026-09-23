@@ -447,6 +447,34 @@
             </div>
           </form>
         </div>
+
+        <!-- Currently Active Signals Table -->
+        <div class="admin-panel-card" style="margin-top:24px">
+          <div class="apc-header" style="display:flex;justify-content:space-between;align-items:center">
+            <div class="apc-title">Currently Active Broadcast Signals</div>
+            <button class="btn-action-gold" onclick="loadAdminSignals()" style="font-size:12px;padding:6px 14px">↻ Refresh</button>
+          </div>
+          <div class="crm-table-container">
+            <table class="crm-table">
+              <thead>
+                <tr>
+                  <th>Pair</th>
+                  <th>Type</th>
+                  <th>Entry</th>
+                  <th>SL</th>
+                  <th>TP1</th>
+                  <th>TP2</th>
+                  <th>Status</th>
+                  <th>Broadcast Time</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="adminSignalsTbody">
+                <tr><td colspan="9" style="text-align:center;padding:30px;color:var(--text-3)">Loading signals...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
 
       <!-- TAB 3: DESK INQUIRIES -->
@@ -518,6 +546,7 @@
         inquiries: 'Direct Desk Inquiries'
       }[tab] || 'Portal';
 
+      if (tab === 'signals') loadAdminSignals();
       if (tab === 'inquiries') loadInquiries();
     }
 
@@ -705,9 +734,72 @@
           await window.SupabaseDB.insertSignal(signal);
           alert('✅ Signal successfully broadcasted to Supabase database!');
           e.target.reset();
+          loadAdminSignals();
         }
       } catch (err) {
         alert('Failed to broadcast signal. Please check console.');
+        console.error(err);
+      }
+    }
+
+    // LOAD SIGNALS IN ADMIN
+    async function loadAdminSignals() {
+      try {
+        const client = window.SupabaseDB.getClient();
+        if (!client) return;
+        const { data, error } = await client.from('signals').select('*').order('created_at', { ascending: false });
+        const tbody = document.getElementById('adminSignalsTbody');
+        if (!tbody) return;
+
+        if (error) {
+          console.error(error);
+          tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:24px;color:#f87171">Failed to load signals.</td></tr>`;
+          return;
+        }
+
+        if (!data || data.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:30px;color:var(--text-3)">No active signals currently broadcasted. Broadcast one above!</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = data.map(sig => {
+          const isBuy = (sig.type || '').toUpperCase() === 'BUY';
+          const typeColor = isBuy ? '#4ade80' : '#f87171';
+          const dt = sig.created_at ? new Date(sig.created_at).toLocaleString() : '—';
+          return `
+            <tr>
+              <td><strong>${escapeHtml(sig.pair || 'XAU/USD')}</strong></td>
+              <td><span style="color:${typeColor};font-weight:800">${escapeHtml(sig.type || 'BUY')}</span></td>
+              <td><code>${escapeHtml(sig.entry_price || '—')}</code></td>
+              <td style="color:#f87171"><code>${escapeHtml(sig.stop_loss || '—')}</code></td>
+              <td style="color:#4ade80"><code>${escapeHtml(sig.take_profit_1 || '—')}</code></td>
+              <td style="color:#4ade80"><code>${escapeHtml(sig.take_profit_2 || '—')}</code></td>
+              <td><span class="outcome-badge" style="background:rgba(245,200,66,0.15);color:#f5c842;padding:2px 8px;border-radius:4px;font-size:11px">${escapeHtml(sig.status || 'Active')}</span></td>
+              <td style="font-size:11px;color:var(--text-3)">${dt}</td>
+              <td>
+                <button onclick="deleteSignal(${sig.id})" class="btn-delete" title="Delete Signal">
+                  🗑️ Delete
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      } catch (e) {
+        console.error('loadAdminSignals error:', e);
+      }
+    }
+
+    // DELETE SIGNAL
+    async function deleteSignal(id) {
+      if (!confirm('Are you sure you want to permanently delete this signal? It will be removed immediately from public website.')) return;
+      try {
+        const client = window.SupabaseDB.getClient();
+        if (!client) return;
+        const { error } = await client.from('signals').delete().eq('id', id);
+        if (error) throw error;
+        loadAdminSignals();
+      } catch (err) {
+        alert('Failed to delete signal.');
         console.error(err);
       }
     }
