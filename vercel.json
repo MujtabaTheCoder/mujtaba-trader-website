@@ -7,24 +7,70 @@
   "outputDirectory": ".",
   "cleanUrls": false,
   "trailingSlash": false,
-  "public": true,
   "rewrites": [
-    { "source": "/admin", "destination": "/admin.html" },
-    { "source": "/admin/", "destination": "/admin.html" },
-    { "source": "/signals", "destination": "/signals.html" },
-    { "source": "/signals/", "destination": "/signals.html" },
-    { "source": "/signal", "destination": "/signals.html" },
-    { "source": "/singal", "destination": "/signals.html" },
-    { "source": "/about", "destination": "/about.html" },
-    { "source": "/about/", "destination": "/about.html" },
-    { "source": "/courses", "destination": "/courses.html" },
-    { "source": "/courses/", "destination": "/courses.html" },
-    { "source": "/contact", "destination": "/contact.html" },
-    { "source": "/contact/", "destination": "/contact.html" },
-    { "source": "/enroll", "destination": "/enroll.html" },
-    { "source": "/enroll/", "destination": "/enroll.html" },
-    { "source": "/blog", "destination": "/blog.html" },
-    { "source": "/blog/", "destination": "/blog.html" },
-    { "source": "/:path", "destination": "/:path.html" }
+    {
+      "source": "/admin",
+      "destination": "/admin.html"
+    },
+    {
+      "source": "/admin/",
+      "destination": "/admin.html"
+    },
+    {
+      "source": "/signals",
+      "destination": "/signals.html"
+    },
+    {
+      "source": "/signals/",
+      "destination": "/signals.html"
+    },
+    {
+      "source": "/signal",
+      "destination": "/signals.html"
+    },
+    {
+      "source": "/singal",
+      "destination": "/signals.html"
+    },
+    {
+      "source": "/about",
+      "destination": "/about.html"
+    },
+    {
+      "source": "/about/",
+      "destination": "/about.html"
+    },
+    {
+      "source": "/courses",
+      "destination": "/courses.html"
+    },
+    {
+      "source": "/courses/",
+      "destination": "/courses.html"
+    },
+    {
+      "source": "/contact",
+      "destination": "/contact.html"
+    },
+    {
+      "source": "/contact/",
+      "destination": "/contact.html"
+    },
+    {
+      "source": "/enroll",
+      "destination": "/enroll.html"
+    },
+    {
+      "source": "/enroll/",
+      "destination": "/enroll.html"
+    },
+    {
+      "source": "/blog",
+      "destination": "/blog.html"
+    },
+    {
+      "source": "/blog/",
+      "destination": "/blog.html"
+    }
   ]
 }
