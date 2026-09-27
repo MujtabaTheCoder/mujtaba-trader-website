@@ -61,54 +61,109 @@
   animateParticles();
 
   /* ──────────────────────────────────────────
-     2. NAVBAR SCROLL EFFECT
+     2. NAVBAR SCROLL EFFECT — Null-Safe
      ──────────────────────────────────────────*/
-  const navbar    = document.getElementById('navbar');
-  const navLinks  = document.querySelectorAll('.nav-link');
-  const sections  = document.querySelectorAll('section[id]');
+  (function initNavbarScroll() {
+    const navbar    = document.getElementById('navbar');
+    const navLinks  = document.querySelectorAll('.nav-link');
+    const sections  = document.querySelectorAll('section[id]');
 
-  window.addEventListener('scroll', () => {
-    // Scrolled style
-    if (window.scrollY > 60) {
-      navbar.classList.add('scrolled');
-    } else {
-      navbar.classList.remove('scrolled');
-    }
+    window.addEventListener('scroll', () => {
+      if (navbar) {
+        if (window.scrollY > 60) {
+          navbar.classList.add('scrolled');
+        } else {
+          navbar.classList.remove('scrolled');
+        }
+      }
 
-    // Active nav link
-    let current = '';
-    sections.forEach(section => {
-      const sTop = section.offsetTop - 100;
-      if (window.scrollY >= sTop) current = section.getAttribute('id');
-    });
-    navLinks.forEach(link => {
-      link.classList.remove('active');
-      if (link.getAttribute('href') === '#' + current) {
-        link.classList.add('active');
+      if (sections.length > 0 && navLinks.length > 0) {
+        let current = '';
+        sections.forEach(section => {
+          const sTop = section.offsetTop - 100;
+          if (window.scrollY >= sTop) current = section.getAttribute('id');
+        });
+        navLinks.forEach(link => {
+          link.classList.remove('active');
+          if (link.getAttribute('href') === '#' + current) {
+            link.classList.add('active');
+          }
+        });
       }
     });
-  });
+  })();
 
   /* ──────────────────────────────────────────
-     3. MOBILE HAMBURGER
+     3. MOBILE HAMBURGER — Robust Implementation
      ──────────────────────────────────────────*/
-  const hamburger  = document.getElementById('hamburger');
-  const navLinksEl = document.getElementById('navLinks');
+  (function initHamburger() {
+    const hamburger  = document.getElementById('hamburger');
+    const navLinksEl = document.getElementById('navLinks');
+    if (!hamburger || !navLinksEl) return;
 
-  hamburger.addEventListener('click', () => {
-    hamburger.classList.toggle('open');
-    navLinksEl.classList.toggle('open');
-    document.body.style.overflow = navLinksEl.classList.contains('open') ? 'hidden' : '';
-  });
+    let overlayEl = document.querySelector('.mobile-nav-overlay');
+    if (!overlayEl) {
+      overlayEl = document.createElement('div');
+      overlayEl.className = 'mobile-nav-overlay';
+      document.body.appendChild(overlayEl);
+    }
 
-  // Close on link click
-  navLinksEl.querySelectorAll('.nav-link').forEach(link => {
-    link.addEventListener('click', () => {
+    function openMenu() {
+      hamburger.classList.add('open');
+      navLinksEl.classList.add('open');
+      overlayEl.classList.add('open');
+      document.body.classList.add('menu-locked');
+    }
+
+    function closeMenu() {
       hamburger.classList.remove('open');
       navLinksEl.classList.remove('open');
-      document.body.style.overflow = '';
+      overlayEl.classList.remove('open');
+      document.body.classList.remove('menu-locked');
+    }
+
+    function toggleMenu() {
+      const isOpen = navLinksEl.classList.contains('open');
+      if (isOpen) closeMenu();
+      else openMenu();
+    }
+
+    hamburger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleMenu();
     });
-  });
+
+    overlayEl.addEventListener('click', (e) => {
+      if (overlayEl.classList.contains('open')) {
+        closeMenu();
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && navLinksEl.classList.contains('open')) {
+        closeMenu();
+      }
+    });
+
+    navLinksEl.querySelectorAll('.nav-link').forEach(link => {
+      link.addEventListener('click', () => {
+        closeMenu();
+      });
+    });
+
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 768 && navLinksEl.classList.contains('open')) {
+        closeMenu();
+      }
+    });
+
+    hamburger.addEventListener('touchstart', (e) => {
+      e.stopPropagation();
+    }, { passive: true });
+    navLinksEl.addEventListener('touchstart', (e) => {
+      e.stopPropagation();
+    }, { passive: true });
+  })();
 
   /* ──────────────────────────────────────────
      4. COUNTER ANIMATION

@@ -1,24 +1,60 @@
 // pages.js — Shared interactive helpers for all inner pages
 // ------------------------------------------------------------
-// 1. Mobile navigation hamburger toggle
-const hamburger = document.getElementById('hamburger');
-const navLinks = document.getElementById('navLinks');
-if (hamburger && navLinks) {
-  hamburger.addEventListener('click', () => {
-    navLinks.classList.toggle('open');
-    hamburger.classList.toggle('active');
-  });
-}
+// 1. MOBILE HAMBURGER — Robust Implementation (aligned with script.js)
+(function initHamburgerPages() {
+  const hamburger  = document.getElementById('hamburger');
+  const navLinksEl = document.getElementById('navLinks');
+  if (!hamburger || !navLinksEl) return;
 
-// 2. Close mobile menu on link click (for better UX)
-if (navLinks) {
-  navLinks.querySelectorAll('a').forEach(link => {
-    link.addEventListener('click', () => {
-      navLinks.classList.remove('open');
-      hamburger.classList.remove('active');
-    });
+  let overlayEl = document.querySelector('.mobile-nav-overlay');
+  if (!overlayEl) {
+    overlayEl = document.createElement('div');
+    overlayEl.className = 'mobile-nav-overlay';
+    document.body.appendChild(overlayEl);
+  }
+
+  function openMenu() {
+    hamburger.classList.add('open');
+    navLinksEl.classList.add('open');
+    overlayEl.classList.add('open');
+    document.body.classList.add('menu-locked');
+  }
+
+  function closeMenu() {
+    hamburger.classList.remove('open');
+    navLinksEl.classList.remove('open');
+    overlayEl.classList.remove('open');
+    document.body.classList.remove('menu-locked');
+  }
+
+  function toggleMenu() {
+    navLinksEl.classList.contains('open') ? closeMenu() : openMenu();
+  }
+
+  hamburger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleMenu();
   });
-}
+
+  overlayEl.addEventListener('click', () => {
+    if (overlayEl.classList.contains('open')) closeMenu();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && navLinksEl.classList.contains('open')) closeMenu();
+  });
+
+  navLinksEl.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => closeMenu());
+  });
+
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 768 && navLinksEl.classList.contains('open')) closeMenu();
+  });
+
+  hamburger.addEventListener('touchstart', (e) => e.stopPropagation(), { passive: true });
+  navLinksEl.addEventListener('touchstart', (e) => e.stopPropagation(), { passive: true });
+})();
 
 // 3. Scroll reveal animations (elements with .reveal class)
 const revealObserver = new IntersectionObserver((entries) => {
