@@ -266,16 +266,10 @@
       <div style="font-size:44px;margin-bottom:12px">🏛️</div>
       <h2>Mujtaba Forex Trader</h2>
       <p>Executive Administrative Portal</p>
-      <input type="text" id="loginUser" class="login-input" placeholder="Username" value="mujtaba" autocomplete="username"/>
-      <input type="password" id="loginPass" class="login-input" placeholder="Password" value="admin@gold2026" autocomplete="current-password"/>
+      <input type="text" id="loginUser" class="login-input" placeholder="Username" autocomplete="username"/>
+      <input type="password" id="loginPass" class="login-input" placeholder="Password" autocomplete="current-password"/>
       <button class="login-btn" onclick="doLogin()">Access Portal 🔐</button>
       <div class="login-error" id="loginError">Invalid credentials. Please recheck.</div>
-      
-      <div class="login-hint">
-        <strong>Default Admin Credentials:</strong><br/>
-        • Username: <code style="color:#fff">mujtaba</code><br/>
-        • Password: <code style="color:#fff">admin@gold2026</code>
-      </div>
     </div>
   </div>
 
@@ -522,328 +516,389 @@
   <script src="supabase.js"></script>
   <script src="script.js"></script>
   <script>
-    let allCandidates = [];
+    (function () {
+      'use strict';
 
-    // LOGIN AUTHENTICATION
-    function doLogin() {
-      const u = document.getElementById('loginUser').value.trim();
-      const p = document.getElementById('loginPass').value.trim();
-      if ((u === 'mujtaba' || u === 'admin') && (p === 'admin@gold2026' || p === 'mujtaba123')) {
-        document.getElementById('loginOverlay').style.display = 'none';
-        document.getElementById('adminPanel').style.display = 'flex';
-        loadEnrollments();
-      } else {
-        document.getElementById('loginError').style.display = 'block';
-      }
-    }
-    document.addEventListener('keypress', e => { if (e.key === 'Enter' && document.getElementById('loginOverlay').style.display !== 'none') doLogin(); });
+      function safeEl(id) { return document.getElementById(id); }
 
-    function doLogout() {
-      document.getElementById('adminPanel').style.display = 'none';
-      document.getElementById('loginOverlay').style.display = 'flex';
-    }
-
-    // TABS
-    function showTab(tab) {
-      ['candidates', 'signals', 'inquiries'].forEach(t => {
-        document.getElementById('tab-' + t).style.display = t === tab ? 'block' : 'none';
-      });
-      document.querySelectorAll('.admin-nav-item').forEach((item, i) => {
-        item.classList.toggle('active', ['candidates','signals','inquiries'][i] === tab);
-      });
-      document.getElementById('viewTitle').textContent = {
-        candidates: 'Candidate Enrollment Dossiers',
-        signals: 'Broadcast Institutional Signals',
-        inquiries: 'Direct Desk Inquiries'
-      }[tab] || 'Portal';
-
-      if (tab === 'signals') loadAdminSignals();
-      if (tab === 'inquiries') loadInquiries();
-    }
-
-    // LOAD LIVE ENROLLMENTS FROM SUPABASE
-    async function loadEnrollments() {
-      try {
-        if (!window.SupabaseDB) return;
-        const data = await window.SupabaseDB.getEnrollments();
-        allCandidates = data || [];
-
-        // Update KPIs
-        document.getElementById('totalCount').textContent = allCandidates.length;
-        document.getElementById('newCount').textContent = allCandidates.filter(c => (c.status || 'New') === 'New').length;
-        document.getElementById('goldCount').textContent = allCandidates.filter(c => (c.course || '').toLowerCase().includes('gold')).length;
-        document.getElementById('enrolledCount').textContent = allCandidates.filter(c => c.status === 'Enrolled').length;
-        document.getElementById('tableCount').textContent = allCandidates.length;
-
-        renderCandidates(allCandidates);
-      } catch (err) {
-        console.error('Failed to load enrollments:', err);
-      }
-    }
-
-    function renderCandidates(list) {
-      const tbody = document.getElementById('candidatesTbody');
-      if (!list || list.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-3)">No candidate applications found.</td></tr>`;
-        return;
+      function escapeHtml(str) {
+        return String(str == null ? '' : str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
       }
 
-      tbody.innerHTML = list.map((c, i) => {
-        const cleanPhone = (c.phone || '').replace(/[^0-9]/g, '');
-        const waLink = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(`Hello ${c.name || 'there'}, this is Mujtaba from Mujtaba Forex Trader regarding your candidate application for the ${c.course || 'Gold Pro'} mentorship track.`)}`;
-        const callLink = `tel:${c.phone || ''}`;
-        const dt = c.created_at ? new Date(c.created_at) : null;
-        const dateStr = dt ? dt.toLocaleDateString('en-PK', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
-        const timeStr = dt ? dt.toLocaleTimeString('en-PK', { hour: '2-digit', minute: '2-digit', hour12: true }) : '';
-        const status = c.status || 'New';
-
-        return `
-          <tr id="row-${c.id}">
-            <td>${i + 1}</td>
-            <td>
-              <div class="candidate-name">${escapeHtml(c.name || 'Anonymous')}</div>
-              <div class="candidate-email">${escapeHtml(c.email || 'No email provided')}</div>
-            </td>
-            <td>
-              <div class="candidate-phone">${escapeHtml(c.phone || '—')}</div>
-            </td>
-            <td>${escapeHtml(c.city || '—')}</td>
-            <td><strong>${escapeHtml(c.level || 'Beginner')}</strong></td>
-            <td><span class="course-chip">${escapeHtml(c.course || 'Gold Pro')}</span></td>
-            <td>
-              <select onchange="updateStatus(${c.id}, this.value)" class="filter-select" style="padding:4px 8px;font-size:11px">
-                <option value="New" ${status === 'New' ? 'selected' : ''}>New</option>
-                <option value="Contacted" ${status === 'Contacted' ? 'selected' : ''}>Contacted</option>
-                <option value="Enrolled" ${status === 'Enrolled' ? 'selected' : ''}>Enrolled</option>
-              </select>
-            </td>
-            <td>
-              <div class="date-cell">${dateStr}</div>
-              <div class="date-cell" style="color:var(--admin-gold);font-size:10px">${timeStr}</div>
-            </td>
-            <td>
-              <div class="action-group" style="flex-wrap:wrap;gap:6px">
-                <a href="${waLink}" target="_blank" class="btn-contact btn-contact-wa" title="WhatsApp">
-                  <span>💬 WhatsApp</span>
-                </a>
-                <a href="${callLink}" class="btn-contact btn-contact-call" title="Call">
-                  <span>📞 Call</span>
-                </a>
-                <button onclick="deleteCandidate(${c.id}, '${escapeHtml(c.name || 'this candidate')}')" class="btn-delete" title="Delete permanently">
-                  🗑️ Delete
-                </button>
-              </div>
-            </td>
-          </tr>
-        `;
-      }).join('');
-    }
-
-    // UPDATE CANDIDATE STATUS
-    async function updateStatus(id, newStatus) {
-      try {
-        const client = window.SupabaseDB.getClient();
-        if (client) {
-          await client.from('enrollments').update({ status: newStatus }).eq('id', id);
-          loadEnrollments();
-        }
-      } catch (err) {
-        console.error('Failed to update status:', err);
-      }
-    }
-
-    // DELETE CANDIDATE PERMANENTLY
-    async function deleteCandidate(id, name) {
-      const confirmed = confirm(`⚠️ Permanently delete record of "${name}"?\n\nYeh action undo nahi ho sakta. Confirm karein?`);
-      if (!confirmed) return;
-      try {
-        const client = window.SupabaseDB.getClient();
-        if (!client) return;
-        const { error } = await client.from('enrollments').delete().eq('id', id);
-        if (error) throw error;
-        // Remove row from UI instantly
-        const row = document.getElementById('row-' + id);
-        if (row) row.remove();
-        // Refresh data & KPIs
-        allCandidates = allCandidates.filter(c => c.id !== id);
-        document.getElementById('totalCount').textContent = allCandidates.length;
-        document.getElementById('newCount').textContent = allCandidates.filter(c => (c.status || 'New') === 'New').length;
-        document.getElementById('goldCount').textContent = allCandidates.filter(c => (c.course || '').toLowerCase().includes('gold')).length;
-        document.getElementById('enrolledCount').textContent = allCandidates.filter(c => c.status === 'Enrolled').length;
-        document.getElementById('tableCount').textContent = allCandidates.length;
-        if (allCandidates.length === 0) {
-          document.getElementById('candidatesTbody').innerHTML = `<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-3)">No candidate applications found.</td></tr>`;
-        }
-      } catch (err) {
-        alert('Delete failed. Please try again.');
-        console.error('Delete error:', err);
-      }
-    }
-
-    // FILTER CANDIDATES
-    function filterCandidates() {
-      const q = document.getElementById('searchInput').value.toLowerCase();
-      const course = document.getElementById('courseFilter').value.toLowerCase();
-      const status = document.getElementById('statusFilter').value.toLowerCase();
-
-      const filtered = allCandidates.filter(c => {
-        const text = `${c.name} ${c.phone} ${c.city} ${c.email}`.toLowerCase();
-        const matchesQuery = !q || text.includes(q);
-        const matchesCourse = !course || (c.course || '').toLowerCase().includes(course);
-        const matchesStatus = !status || (c.status || 'new').toLowerCase() === status;
-        return matchesQuery && matchesCourse && matchesStatus;
-      });
-
-      document.getElementById('tableCount').textContent = filtered.length;
-      renderCandidates(filtered);
-    }
-
-    // EXPORT CSV
-    function exportCSV() {
-      if (!allCandidates || allCandidates.length === 0) {
-        alert('No candidate records to export.');
-        return;
-      }
-      const headers = ['ID', 'Full Name', 'Phone', 'Email', 'City', 'Level', 'Course', 'Status', 'Applied At'];
-      const rows = allCandidates.map(c => [
-        c.id,
-        `"${(c.name || '').replace(/"/g, '""')}"`,
-        `"${c.phone || ''}"`,
-        `"${c.email || ''}"`,
-        `"${(c.city || '').replace(/"/g, '""')}"`,
-        `"${c.level || ''}"`,
-        `"${(c.course || '').replace(/"/g, '""')}"`,
-        `"${c.status || 'New'}"`,
-        `"${c.created_at || ''}"`
-      ]);
-
-      const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `mujtaba_candidates_${new Date().toISOString().slice(0, 10)}.csv`;
-      a.click();
-    }
-
-    // POST SIGNAL
-    async function postSignal(e) {
-      e.preventDefault();
-      const signal = {
-        pair: document.getElementById('sigPair').value,
-        type: document.getElementById('sigType').value,
-        entry_price: document.getElementById('sigEntry').value,
-        stop_loss: document.getElementById('sigSL').value,
-        take_profit_1: document.getElementById('sigTP1').value,
-        take_profit_2: document.getElementById('sigTP2').value || null,
-        notes: document.getElementById('sigNotes').value || null,
-        status: 'Active'
+      window.onerror = function (msg, url, line, col, err) {
+        console.error('ADMIN PAGE ERROR:', msg, url, line, col, err);
+        return false;
       };
 
-      try {
-        if (window.SupabaseDB) {
-          await window.SupabaseDB.insertSignal(signal);
-          alert('✅ Signal successfully broadcasted to Supabase database!');
-          e.target.reset();
-          loadAdminSignals();
+      let allCandidates = [];
+      try { allCandidates = []; } catch (e) {}
+
+      // LOGIN AUTHENTICATION
+      window.doLogin = function () {
+        try {
+          const userEl = safeEl('loginUser');
+          const passEl = safeEl('loginPass');
+          const errorEl = safeEl('loginError');
+          const overlayEl = safeEl('loginOverlay');
+          const panelEl = safeEl('adminPanel');
+          if (!userEl || !passEl || !overlayEl || !panelEl) return;
+          const u = userEl.value.trim();
+          const p = passEl.value.trim();
+          if ((u === 'mujtaba' || u === 'admin') && (p === 'admin@gold2026' || p === 'mujtaba123')) {
+            overlayEl.style.display = 'none';
+            panelEl.style.display = 'flex';
+            window.loadEnrollments();
+          } else if (errorEl) {
+            errorEl.style.display = 'block';
+          }
+        } catch (e) { console.error('doLogin error:', e); }
+      };
+
+      document.addEventListener('keypress', e => {
+        try {
+          if (e.key !== 'Enter') return;
+          const overlayEl = safeEl('loginOverlay');
+          if (overlayEl && overlayEl.style.display !== 'none') window.doLogin();
+        } catch (err) { console.error('keypress error:', err); }
+      });
+
+      window.doLogout = function () {
+        try {
+          const panelEl = safeEl('adminPanel');
+          const overlayEl = safeEl('loginOverlay');
+          if (panelEl) panelEl.style.display = 'none';
+          if (overlayEl) overlayEl.style.display = 'flex';
+        } catch (e) { console.error('doLogout error:', e); }
+      };
+
+      // TABS
+      window.showTab = function (tab) {
+        try {
+          const tabNames = ['candidates', 'signals', 'inquiries'];
+          tabNames.forEach(t => {
+            const tEl = safeEl('tab-' + t);
+            if (tEl) tEl.style.display = t === tab ? 'block' : 'none';
+          });
+          const navItems = document.querySelectorAll('.admin-nav-item');
+          navItems.forEach((item, i) => {
+            const matchTab = tabNames[i] || null;
+            item.classList.toggle('active', matchTab === tab);
+          });
+          const titleEl = safeEl('viewTitle');
+          if (titleEl) {
+            titleEl.textContent = ({
+              candidates: 'Candidate Enrollment Dossiers',
+              signals: 'Broadcast Institutional Signals',
+              inquiries: 'Direct Desk Inquiries'
+            }[tab]) || 'Portal';
+          }
+          if (tab === 'signals') window.loadAdminSignals();
+          if (tab === 'inquiries') window.loadInquiries();
+        } catch (e) { console.error('showTab error:', e); }
+      };
+
+      // LOAD LIVE ENROLLMENTS FROM SUPABASE
+      window.loadEnrollments = async function () {
+        try {
+          if (!window.SupabaseDB) return;
+          const data = await window.SupabaseDB.getEnrollments();
+          allCandidates = data || [];
+
+          const totalEl = safeEl('totalCount');
+          const newEl = safeEl('newCount');
+          const goldEl = safeEl('goldCount');
+          const enrolledEl = safeEl('enrolledCount');
+          const tableCountEl = safeEl('tableCount');
+
+          if (totalEl) totalEl.textContent = allCandidates.length;
+          if (newEl) newEl.textContent = allCandidates.filter(c => (c.status || 'New') === 'New').length;
+          if (goldEl) goldEl.textContent = allCandidates.filter(c => (c.course || '').toLowerCase().includes('gold')).length;
+          if (enrolledEl) enrolledEl.textContent = allCandidates.filter(c => c.status === 'Enrolled').length;
+          if (tableCountEl) tableCountEl.textContent = allCandidates.length;
+
+          window.renderCandidates(allCandidates);
+        } catch (err) { console.error('Failed to load enrollments:', err); }
+      };
+
+      window.renderCandidates = function (list) {
+        try {
+          const tbody = safeEl('candidatesTbody');
+          if (!tbody) return;
+          if (!list || list.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-3)">No candidate applications found.</td></tr>`;
+            return;
+          }
+
+          tbody.innerHTML = list.map((c, i) => {
+            const cleanPhone = String(c.phone || '').replace(/[^0-9]/g, '');
+            const waLink = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(`Hello ${c.name || 'there'}, this is Mujtaba from Mujtaba Forex Trader regarding your candidate application for the ${c.course || 'Gold Pro'} mentorship track.`)}`;
+            const callLink = `tel:${c.phone || ''}`;
+            const dt = c.created_at ? new Date(c.created_at) : null;
+            const dateStr = dt ? dt.toLocaleDateString('en-PK', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
+            const timeStr = dt ? dt.toLocaleTimeString('en-PK', { hour: '2-digit', minute: '2-digit', hour12: true }) : '';
+            const status = c.status || 'New';
+            const safeId = String(c.id == null ? '' : c.id).replace(/[^0-9]/g, '');
+            const nameEsc = escapeHtml(c.name || 'this candidate');
+
+            return `
+              <tr id="row-${safeId}">
+                <td>${i + 1}</td>
+                <td>
+                  <div class="candidate-name">${escapeHtml(c.name || 'Anonymous')}</div>
+                  <div class="candidate-email">${escapeHtml(c.email || 'No email provided')}</div>
+                </td>
+                <td>
+                  <div class="candidate-phone">${escapeHtml(c.phone || '—')}</div>
+                </td>
+                <td>${escapeHtml(c.city || '—')}</td>
+                <td><strong>${escapeHtml(c.level || 'Beginner')}</strong></td>
+                <td><span class="course-chip">${escapeHtml(c.course || 'Gold Pro')}</span></td>
+                <td>
+                  <select onchange="window.updateStatus(${safeId}, this.value)" class="filter-select" style="padding:4px 8px;font-size:11px">
+                    <option value="New" ${status === 'New' ? 'selected' : ''}>New</option>
+                    <option value="Contacted" ${status === 'Contacted' ? 'selected' : ''}>Contacted</option>
+                    <option value="Enrolled" ${status === 'Enrolled' ? 'selected' : ''}>Enrolled</option>
+                  </select>
+                </td>
+                <td>
+                  <div class="date-cell">${dateStr}</div>
+                  <div class="date-cell" style="color:var(--admin-gold);font-size:10px">${timeStr}</div>
+                </td>
+                <td>
+                  <div class="action-group" style="flex-wrap:wrap;gap:6px">
+                    <a href="${waLink}" target="_blank" class="btn-contact btn-contact-wa" title="WhatsApp">
+                      <span>💬 WhatsApp</span>
+                    </a>
+                    <a href="${callLink}" class="btn-contact btn-contact-call" title="Call">
+                      <span>📞 Call</span>
+                    </a>
+                    <button onclick='window.deleteCandidate(${JSON.stringify(String(c.id)).slice(1, -1)}, ${JSON.stringify(nameEsc).slice(1, -1)})' class="btn-delete" title="Delete permanently">
+                      🗑️ Delete
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            `;
+          }).join('');
+        } catch (e) { console.error('renderCandidates error:', e); }
+      };
+
+      // UPDATE CANDIDATE STATUS
+      window.updateStatus = async function (id, newStatus) {
+        try {
+          if (!window.SupabaseDB) return;
+          const client = window.SupabaseDB.getClient();
+          if (client) {
+            await client.from('enrollments').update({ status: newStatus }).eq('id', id);
+            window.loadEnrollments();
+          }
+        } catch (err) { console.error('Failed to update status:', err); }
+      };
+
+      // DELETE CANDIDATE PERMANENTLY
+      window.deleteCandidate = async function (id, name) {
+        try {
+          const confirmed = confirm(`⚠️ Permanently delete record of "${name}"?\n\nYeh action undo nahi ho sakta. Confirm karein?`);
+          if (!confirmed) return;
+          if (!window.SupabaseDB) return;
+          const client = window.SupabaseDB.getClient();
+          if (!client) return;
+          const { error } = await client.from('enrollments').delete().eq('id', id);
+          if (error) throw error;
+          const row = document.getElementById('row-' + String(id).replace(/[^0-9]/g, ''));
+          if (row) row.remove();
+          allCandidates = allCandidates.filter(c => String(c.id) !== String(id));
+          const totalEl = safeEl('totalCount');
+          const newEl = safeEl('newCount');
+          const goldEl = safeEl('goldCount');
+          const enrolledEl = safeEl('enrolledCount');
+          const tableCountEl = safeEl('tableCount');
+          const tbodyEl = safeEl('candidatesTbody');
+          if (totalEl) totalEl.textContent = allCandidates.length;
+          if (newEl) newEl.textContent = allCandidates.filter(c => (c.status || 'New') === 'New').length;
+          if (goldEl) goldEl.textContent = allCandidates.filter(c => (c.course || '').toLowerCase().includes('gold')).length;
+          if (enrolledEl) enrolledEl.textContent = allCandidates.filter(c => c.status === 'Enrolled').length;
+          if (tableCountEl) tableCountEl.textContent = allCandidates.length;
+          if (tbodyEl && allCandidates.length === 0) {
+            tbodyEl.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-3)">No candidate applications found.</td></tr>`;
+          }
+        } catch (err) {
+          try { alert('Delete failed. Please try again.'); } catch (a) {}
+          console.error('Delete error:', err);
         }
-      } catch (err) {
-        alert('Failed to broadcast signal. Please check console.');
-        console.error(err);
-      }
-    }
+      };
 
-    // LOAD SIGNALS IN ADMIN
-    async function loadAdminSignals() {
-      try {
-        const client = window.SupabaseDB.getClient();
-        if (!client) return;
-        const { data, error } = await client.from('signals').select('*').order('created_at', { ascending: false });
-        const tbody = document.getElementById('adminSignalsTbody');
-        if (!tbody) return;
+      // FILTER CANDIDATES
+      window.filterCandidates = function () {
+        try {
+          const searchEl = safeEl('searchInput');
+          const courseEl = safeEl('courseFilter');
+          const statusEl = safeEl('statusFilter');
+          const tableCountEl = safeEl('tableCount');
+          const q = searchEl ? searchEl.value.toLowerCase() : '';
+          const course = courseEl ? courseEl.value.toLowerCase() : '';
+          const status = statusEl ? statusEl.value.toLowerCase() : '';
 
-        if (error) {
-          console.error(error);
-          tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:24px;color:#f87171">Failed to load signals.</td></tr>`;
-          return;
+          const filtered = allCandidates.filter(c => {
+            const text = `${c.name} ${c.phone} ${c.city} ${c.email}`.toLowerCase();
+            const matchesQuery = !q || text.includes(q);
+            const matchesCourse = !course || String(c.course || '').toLowerCase().includes(course);
+            const matchesStatus = !status || String(c.status || 'new').toLowerCase() === status;
+            return matchesQuery && matchesCourse && matchesStatus;
+          });
+
+          if (tableCountEl) tableCountEl.textContent = filtered.length;
+          window.renderCandidates(filtered);
+        } catch (e) { console.error('filterCandidates error:', e); }
+      };
+
+      // EXPORT CSV
+      window.exportCSV = function () {
+        try {
+          if (!allCandidates || allCandidates.length === 0) {
+            try { alert('No candidate records to export.'); } catch (a) {}
+            return;
+          }
+          const headers = ['ID', 'Full Name', 'Phone', 'Email', 'City', 'Level', 'Course', 'Status', 'Applied At'];
+          const esc = v => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`;
+          const rows = allCandidates.map(c => [
+            c.id, esc(c.name), esc(c.phone), esc(c.email), esc(c.city), esc(c.level), esc(c.course), esc(c.status || 'New'), esc(c.created_at)
+          ]);
+          const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+          const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `mujtaba_candidates_${new Date().toISOString().slice(0, 10)}.csv`;
+          a.click();
+          setTimeout(() => URL.revokeObjectURL(url), 5000);
+        } catch (e) { console.error('exportCSV error:', e); }
+      };
+
+      // POST SIGNAL
+      window.postSignal = async function (e) {
+        try {
+          e.preventDefault();
+          const pairEl = safeEl('sigPair');
+          const typeEl = safeEl('sigType');
+          const entryEl = safeEl('sigEntry');
+          const slEl = safeEl('sigSL');
+          const tp1El = safeEl('sigTP1');
+          const tp2El = safeEl('sigTP2');
+          const notesEl = safeEl('sigNotes');
+          const signal = {
+            pair: pairEl ? pairEl.value : '',
+            type: typeEl ? typeEl.value : 'BUY',
+            entry_price: entryEl ? entryEl.value : '',
+            stop_loss: slEl ? slEl.value : '',
+            take_profit_1: tp1El ? tp1El.value : '',
+            take_profit_2: (tp2El && tp2El.value) ? tp2El.value : null,
+            notes: (notesEl && notesEl.value) ? notesEl.value : null,
+            status: 'Active'
+          };
+          if (window.SupabaseDB) {
+            await window.SupabaseDB.insertSignal(signal);
+            try { alert('✅ Signal successfully broadcasted to Supabase database!'); } catch (a) {}
+            e.target.reset();
+            window.loadAdminSignals();
+          }
+        } catch (err) {
+          try { alert('Failed to broadcast signal. Please check console.'); } catch (a) {}
+          console.error(err);
         }
+      };
 
-        if (!data || data.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:30px;color:var(--text-3)">No active signals currently broadcasted. Broadcast one above!</td></tr>`;
-          return;
+      // LOAD SIGNALS IN ADMIN
+      window.loadAdminSignals = async function () {
+        try {
+          if (!window.SupabaseDB) return;
+          const client = window.SupabaseDB.getClient();
+          if (!client) return;
+          const { data, error } = await client.from('signals').select('*').order('created_at', { ascending: false });
+          const tbody = safeEl('adminSignalsTbody');
+          if (!tbody) return;
+          if (error) {
+            console.error(error);
+            tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:24px;color:#f87171">Failed to load signals.</td></tr>`;
+            return;
+          }
+          if (!data || data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:30px;color:var(--text-3)">No active signals currently broadcasted. Broadcast one above!</td></tr>`;
+            return;
+          }
+          tbody.innerHTML = data.map(sig => {
+            const isBuy = String(sig.type || '').toUpperCase() === 'BUY';
+            const typeColor = isBuy ? '#4ade80' : '#f87171';
+            const dt = sig.created_at ? new Date(sig.created_at).toLocaleString() : '—';
+            const safeId = String(sig.id == null ? '' : sig.id).replace(/[^0-9]/g, '');
+            return `
+              <tr>
+                <td><strong>${escapeHtml(sig.pair || 'XAU/USD')}</strong></td>
+                <td><span style="color:${typeColor};font-weight:800">${escapeHtml(sig.type || 'BUY')}</span></td>
+                <td><code>${escapeHtml(sig.entry_price || '—')}</code></td>
+                <td style="color:#f87171"><code>${escapeHtml(sig.stop_loss || '—')}</code></td>
+                <td style="color:#4ade80"><code>${escapeHtml(sig.take_profit_1 || '—')}</code></td>
+                <td style="color:#4ade80"><code>${escapeHtml(sig.take_profit_2 || '—')}</code></td>
+                <td><span class="outcome-badge" style="background:rgba(245,200,66,0.15);color:#f5c842;padding:2px 8px;border-radius:4px;font-size:11px">${escapeHtml(sig.status || 'Active')}</span></td>
+                <td style="font-size:11px;color:var(--text-3)">${dt}</td>
+                <td>
+                  <button onclick="window.deleteSignal(${safeId})" class="btn-delete" title="Delete Signal">
+                    🗑️ Delete
+                  </button>
+                </td>
+              </tr>
+            `;
+          }).join('');
+        } catch (e) { console.error('loadAdminSignals error:', e); }
+      };
+
+      // DELETE SIGNAL
+      window.deleteSignal = async function (id) {
+        try {
+          if (!confirm('Are you sure you want to permanently delete this signal? It will be removed immediately from public website.')) return;
+          if (!window.SupabaseDB) return;
+          const client = window.SupabaseDB.getClient();
+          if (!client) return;
+          const { error } = await client.from('signals').delete().eq('id', id);
+          if (error) throw error;
+          window.loadAdminSignals();
+        } catch (err) {
+          try { alert('Failed to delete signal.'); } catch (a) {}
+          console.error(err);
         }
+      };
 
-        tbody.innerHTML = data.map(sig => {
-          const isBuy = (sig.type || '').toUpperCase() === 'BUY';
-          const typeColor = isBuy ? '#4ade80' : '#f87171';
-          const dt = sig.created_at ? new Date(sig.created_at).toLocaleString() : '—';
-          return `
-            <tr>
-              <td><strong>${escapeHtml(sig.pair || 'XAU/USD')}</strong></td>
-              <td><span style="color:${typeColor};font-weight:800">${escapeHtml(sig.type || 'BUY')}</span></td>
-              <td><code>${escapeHtml(sig.entry_price || '—')}</code></td>
-              <td style="color:#f87171"><code>${escapeHtml(sig.stop_loss || '—')}</code></td>
-              <td style="color:#4ade80"><code>${escapeHtml(sig.take_profit_1 || '—')}</code></td>
-              <td style="color:#4ade80"><code>${escapeHtml(sig.take_profit_2 || '—')}</code></td>
-              <td><span class="outcome-badge" style="background:rgba(245,200,66,0.15);color:#f5c842;padding:2px 8px;border-radius:4px;font-size:11px">${escapeHtml(sig.status || 'Active')}</span></td>
-              <td style="font-size:11px;color:var(--text-3)">${dt}</td>
-              <td>
-                <button onclick="deleteSignal(${sig.id})" class="btn-delete" title="Delete Signal">
-                  🗑️ Delete
-                </button>
-              </td>
-            </tr>
-          `;
-        }).join('');
-      } catch (e) {
-        console.error('loadAdminSignals error:', e);
-      }
-    }
+      // LOAD INQUIRIES
+      window.loadInquiries = async function () {
+        try {
+          if (!window.SupabaseDB) return;
+          const client = window.SupabaseDB.getClient();
+          if (!client) return;
+          const { data } = await client.from('contacts').select('*').order('created_at', { ascending: false });
+          const tbody = safeEl('inquiriesTbody');
+          if (!tbody) return;
+          if (!data || data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--text-3)">No inquiries yet.</td></tr>`;
+            return;
+          }
+          tbody.innerHTML = data.map(inq => {
+            const dt = inq.created_at ? new Date(inq.created_at).toLocaleDateString() : '—';
+            return `
+              <tr>
+                <td><strong>${escapeHtml(inq.name)}</strong></td>
+                <td style="color:var(--admin-gold)">${escapeHtml(inq.phone || '—')}</td>
+                <td>${escapeHtml(inq.email || '—')}</td>
+                <td><span class="course-chip">${escapeHtml(inq.subject || 'General')}</span></td>
+                <td>${escapeHtml(inq.message || '')}</td>
+                <td style="font-size:11px;color:var(--text-3)">${dt}</td>
+              </tr>
+            `;
+          }).join('');
+        } catch (err) { console.error(err); }
+      };
 
-    // DELETE SIGNAL
-    async function deleteSignal(id) {
-      if (!confirm('Are you sure you want to permanently delete this signal? It will be removed immediately from public website.')) return;
-      try {
-        const client = window.SupabaseDB.getClient();
-        if (!client) return;
-        const { error } = await client.from('signals').delete().eq('id', id);
-        if (error) throw error;
-        loadAdminSignals();
-      } catch (err) {
-        alert('Failed to delete signal.');
-        console.error(err);
-      }
-    }
-
-    // LOAD INQUIRIES
-    async function loadInquiries() {
-      try {
-        const client = window.SupabaseDB.getClient();
-        if (!client) return;
-        const { data } = await client.from('contacts').select('*').order('created_at', { ascending: false });
-        const tbody = document.getElementById('inquiriesTbody');
-        if (!data || data.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--text-3)">No inquiries yet.</td></tr>`;
-          return;
-        }
-        tbody.innerHTML = data.map(inq => `
-          <tr>
-            <td><strong>${escapeHtml(inq.name)}</strong></td>
-            <td style="color:var(--admin-gold)">${escapeHtml(inq.phone || '—')}</td>
-            <td>${escapeHtml(inq.email || '—')}</td>
-            <td><span class="course-chip">${escapeHtml(inq.subject || 'General')}</span></td>
-            <td>${escapeHtml(inq.message || '')}</td>
-            <td style="font-size:11px;color:var(--text-3)">${new Date(inq.created_at).toLocaleDateString()}</td>
-          </tr>
-        `).join('');
-      } catch (err) {
-        console.error(err);
-      }
-    }
-
-    function escapeHtml(str) {
-      return String(str || '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-    }
+      // End of admin robust script
+    })();
   </script>
 </body>
 </html>

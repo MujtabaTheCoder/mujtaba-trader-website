@@ -7,58 +7,63 @@
   'use strict';
 
   /* ──────────────────────────────────────────
-     1. PARTICLE BACKGROUND
+     1. PARTICLE BACKGROUND — NULL-SAFE
      ──────────────────────────────────────────*/
-  const canvas = document.getElementById('particles');
-  const ctx    = canvas.getContext('2d');
-  let particles = [];
-  let W, H;
+  (function initParticles() {
+    const canvas = document.getElementById('particles');
+    if (!canvas || !canvas.getContext) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
 
-  function resizeCanvas() {
-    W = canvas.width  = window.innerWidth;
-    H = canvas.height = window.innerHeight;
-  }
-  resizeCanvas();
-  window.addEventListener('resize', resizeCanvas);
+    let particles = [];
+    let W, H;
 
-  function randomBetween(a, b) { return Math.random() * (b - a) + a; }
-
-  class Particle {
-    constructor() { this.reset(); }
-    reset() {
-      this.x    = randomBetween(0, W);
-      this.y    = randomBetween(0, H);
-      this.r    = randomBetween(0.4, 1.8);
-      this.vx   = randomBetween(-0.15, 0.15);
-      this.vy   = randomBetween(-0.3, -0.05);
-      this.life = randomBetween(0.3, 1);
-      this.alpha = this.life;
+    function resizeCanvas() {
+      W = canvas.width  = window.innerWidth;
+      H = canvas.height = window.innerHeight;
     }
-    update() {
-      this.x += this.vx;
-      this.y += this.vy;
-      this.alpha -= 0.002;
-      if (this.alpha <= 0 || this.y < -10) this.reset();
-    }
-    draw() {
-      ctx.save();
-      ctx.globalAlpha = Math.max(0, this.alpha * 0.5);
-      ctx.fillStyle = `hsl(${randomBetween(38,52)}, 95%, 65%)`;
-      ctx.beginPath();
-      ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-    }
-  }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
 
-  for (let i = 0; i < 80; i++) particles.push(new Particle());
+    function randomBetween(a, b) { return Math.random() * (b - a) + a; }
 
-  function animateParticles() {
-    ctx.clearRect(0, 0, W, H);
-    particles.forEach(p => { p.update(); p.draw(); });
-    requestAnimationFrame(animateParticles);
-  }
-  animateParticles();
+    class Particle {
+      constructor() { this.reset(); }
+      reset() {
+        this.x    = randomBetween(0, W);
+        this.y    = randomBetween(0, H);
+        this.r    = randomBetween(0.4, 1.8);
+        this.vx   = randomBetween(-0.15, 0.15);
+        this.vy   = randomBetween(-0.3, -0.05);
+        this.life = randomBetween(0.3, 1);
+        this.alpha = this.life;
+      }
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.alpha -= 0.002;
+        if (this.alpha <= 0 || this.y < -10) this.reset();
+      }
+      draw() {
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, this.alpha * 0.5);
+        ctx.fillStyle = `hsl(${randomBetween(38,52)}, 95%, 65%)`;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    for (let i = 0; i < 80; i++) particles.push(new Particle());
+
+    function animateParticles() {
+      ctx.clearRect(0, 0, W, H);
+      particles.forEach(p => { p.update(); p.draw(); });
+      requestAnimationFrame(animateParticles);
+    }
+    animateParticles();
+  })();
 
   /* ──────────────────────────────────────────
      2. NAVBAR SCROLL EFFECT — Null-Safe
@@ -295,13 +300,14 @@
   const btnIcon   = submitBtn?.querySelector('.btn-icon');
   const successEl = document.getElementById('formSuccess');
 
-  // Input focus glow effect
   document.querySelectorAll('.enroll-form input, .enroll-form select, .enroll-form textarea').forEach(input => {
     input.addEventListener('focus', () => {
-      input.closest('.input-wrap')?.querySelector('.input-icon')?.style && (input.closest('.input-wrap').querySelector('.input-icon').style.color = 'var(--gold-1)');
+      const icon = input.closest('.input-wrap')?.querySelector('.input-icon');
+      if (icon) icon.style.color = 'var(--gold-1)';
     });
     input.addEventListener('blur', () => {
-      input.closest('.input-wrap')?.querySelector('.input-icon')?.style && (input.closest('.input-wrap').querySelector('.input-icon').style.color = '');
+      const icon = input.closest('.input-wrap')?.querySelector('.input-icon');
+      if (icon) icon.style.color = '';
     });
   });
 
@@ -309,11 +315,20 @@
     e.preventDefault();
 
     // Validate
-    const name   = document.getElementById('studentName').value.trim();
-    const phone  = document.getElementById('studentPhone').value.trim();
-    const city   = document.getElementById('studentCity').value.trim();
-    const level  = document.getElementById('studentLevel').value;
-    const course = document.getElementById('studentCourse').value;
+    const nameEl   = document.getElementById('studentName');
+    const phoneEl  = document.getElementById('studentPhone');
+    const cityEl   = document.getElementById('studentCity');
+    const levelEl  = document.getElementById('studentLevel');
+    const courseEl = document.getElementById('studentCourse');
+    if (!nameEl || !phoneEl || !cityEl || !levelEl || !courseEl) {
+      showFormError('Form elements not found. Please refresh the page.');
+      return;
+    }
+    const name   = nameEl.value.trim();
+    const phone  = phoneEl.value.trim();
+    const city   = cityEl.value.trim();
+    const level  = levelEl.value;
+    const course = courseEl.value;
 
     if (!name || !phone || !city || !level || !course) {
       showFormError('Please complete all required fields marked with an asterisk (*).');
@@ -329,19 +344,21 @@
 
     // Show loading
     submitBtn.disabled = true;
-    btnLoader.classList.add('active');
+    btnLoader?.classList.add('active');
     if (btnText)  btnText.style.display  = 'none';
     if (btnIcon)  btnIcon.style.display  = 'none';
 
     // Collect form data
+    const emailEl = document.getElementById('studentEmail');
+    const msgEl   = document.getElementById('studentMessage');
     const formData = {
       name,
       phone,
-      email:   document.getElementById('studentEmail').value.trim() || null,
+      email:   emailEl ? emailEl.value.trim() || null : null,
       city:    city || null,
       level:   level || null,
       course:  course || null,
-      goal:    document.getElementById('studentMessage').value.trim() || null
+      goal:    msgEl ? msgEl.value.trim() || null : null
     };
 
     // Insert into Supabase if available
@@ -354,21 +371,22 @@
     }
 
     // Success
-    btnLoader.classList.remove('active');
-    submitBtn.disabled = false;
+    btnLoader?.classList.remove('active');
+    if (submitBtn) submitBtn.disabled = false;
     if (btnText) btnText.style.display = '';
     if (btnIcon) btnIcon.style.display = '';
 
     // Hide form fields, show success
     const formInputs = form.querySelectorAll('.form-group, .form-submit');
     formInputs.forEach(el => { el.style.display = 'none'; });
-    successEl.classList.add('show');
+    successEl?.classList.add('show');
 
     // Confetti burst
     launchConfetti();
   });
 
   function showFormError(msg) {
+    if (!form) return;
     // Remove old error
     const oldErr = form.querySelector('.form-error');
     if (oldErr) oldErr.remove();
@@ -387,7 +405,8 @@
       animation: fadeSlideUp 0.3s ease;
     `;
     err.textContent = '⚠️ ' + msg;
-    form.querySelector('.form-group').before(err);
+    const firstGroup = form.querySelector('.form-group');
+    if (firstGroup) firstGroup.before(err);
     setTimeout(() => err.remove(), 4000);
   }
 
@@ -433,17 +452,20 @@
   }
 
   /* ──────────────────────────────────────────
-     10. LIVE CANDLESTICK ANIMATION
+     10. LIVE CANDLESTICK ANIMATION — NULL-SAFE
      ──────────────────────────────────────────*/
-  const candles = document.querySelectorAll('.candle');
-  function animateCandles() {
-    candles.forEach(c => {
-      const newH = Math.floor(Math.random() * 80 + 20);
-      c.style.transition = 'height 1s ease';
-      c.style.height = newH + 'px';
-    });
-  }
-  setInterval(animateCandles, 2000);
+  (function initCandles() {
+    const candles = document.querySelectorAll('.candle');
+    if (!candles || candles.length === 0) return;
+    function animateCandles() {
+      candles.forEach(c => {
+        const newH = Math.floor(Math.random() * 80 + 20);
+        c.style.transition = 'height 1s ease';
+        c.style.height = newH + 'px';
+      });
+    }
+    setInterval(animateCandles, 2000);
+  })();
 
   /* ──────────────────────────────────────────
      11. LIVE GOLD PRICE TICKER (simulated)
@@ -466,11 +488,16 @@
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', (e) => {
       const href = anchor.getAttribute('href');
-      const target = document.querySelector(href);
+      if (!href || href === '#') return;
+      let target = null;
+      try {
+        target = document.querySelector(href);
+      } catch (err) {
+        return;
+      }
       if (target) {
         e.preventDefault();
-        
-        // Auto-select course if specified on card
+
         const course = anchor.dataset.course;
         if (course) {
           const selectEl = document.getElementById('studentCourse');
@@ -484,7 +511,6 @@
           }
         }
 
-        // Smooth scroll directly to form
         const formEl = document.getElementById('enrollForm');
         if (href === '#enroll' && formEl) {
           formEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
