@@ -10,11 +10,12 @@
      1. PARTICLE BACKGROUND
      ──────────────────────────────────────────*/
   const canvas = document.getElementById('particles');
-  const ctx    = canvas.getContext('2d');
+  const ctx    = canvas ? canvas.getContext('2d') : null;
   let particles = [];
   let W, H;
 
   function resizeCanvas() {
+    if (!canvas) return;
     W = canvas.width  = window.innerWidth;
     H = canvas.height = window.innerHeight;
   }
@@ -51,14 +52,15 @@
     }
   }
 
-  for (let i = 0; i < 80; i++) particles.push(new Particle());
+  if (ctx) {
+    for (let i = 0; i < 80; i++) particles.push(new Particle());
 
-  function animateParticles() {
-    ctx.clearRect(0, 0, W, H);
-    particles.forEach(p => { p.update(); p.draw(); });
-    requestAnimationFrame(animateParticles);
+    (function animateParticles() {
+      ctx.clearRect(0, 0, W, H);
+      particles.forEach(p => { p.update(); p.draw(); });
+      requestAnimationFrame(animateParticles);
+    })();
   }
-  animateParticles();
 
   /* ──────────────────────────────────────────
      2. NAVBAR SCROLL EFFECT
@@ -69,10 +71,8 @@
 
   window.addEventListener('scroll', () => {
     // Scrolled style
-    if (window.scrollY > 60) {
-      navbar.classList.add('scrolled');
-    } else {
-      navbar.classList.remove('scrolled');
+    if (navbar) {
+      navbar.classList.toggle('scrolled', window.scrollY > 60);
     }
 
     // Active nav link
@@ -95,20 +95,45 @@
   const hamburger  = document.getElementById('hamburger');
   const navLinksEl = document.getElementById('navLinks');
 
-  hamburger.addEventListener('click', () => {
-    hamburger.classList.toggle('open');
-    navLinksEl.classList.toggle('open');
-    document.body.style.overflow = navLinksEl.classList.contains('open') ? 'hidden' : '';
-  });
+  if (hamburger && navLinksEl && !hamburger.dataset.navBound) {
+    hamburger.dataset.navBound = 'true';
+    hamburger.setAttribute('aria-controls', 'navLinks');
+    hamburger.setAttribute('aria-expanded', 'false');
 
-  // Close on link click
-  navLinksEl.querySelectorAll('.nav-link').forEach(link => {
-    link.addEventListener('click', () => {
-      hamburger.classList.remove('open');
-      navLinksEl.classList.remove('open');
-      document.body.style.overflow = '';
+    function setMenu(open) {
+      hamburger.classList.toggle('open', open);
+      navLinksEl.classList.toggle('open', open);
+      hamburger.setAttribute('aria-expanded', open ? 'true' : 'false');
+      document.body.style.overflow = open ? 'hidden' : '';
+    }
+
+    hamburger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      setMenu(!navLinksEl.classList.contains('open'));
     });
-  });
+
+    // Close on link click
+    navLinksEl.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => setMenu(false));
+    });
+
+    // Close when clicking outside the panel content
+    document.addEventListener('click', (e) => {
+      if (!navLinksEl.classList.contains('open')) return;
+      if (hamburger.contains(e.target)) return;
+      if (!e.target.closest('#navLinks li')) setMenu(false);
+    });
+
+    // Close on Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') setMenu(false);
+    });
+
+    // Reset when resizing back to desktop
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 768) setMenu(false);
+    });
+  }
 
   /* ──────────────────────────────────────────
      4. COUNTER ANIMATION

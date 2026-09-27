@@ -1,24 +1,6 @@
 // pages.js — Shared interactive helpers for all inner pages
 // ------------------------------------------------------------
-// 1. Mobile navigation hamburger toggle
-const hamburger = document.getElementById('hamburger');
-const navLinks = document.getElementById('navLinks');
-if (hamburger && navLinks) {
-  hamburger.addEventListener('click', () => {
-    navLinks.classList.toggle('open');
-    hamburger.classList.toggle('active');
-  });
-}
-
-// 2. Close mobile menu on link click (for better UX)
-if (navLinks) {
-  navLinks.querySelectorAll('a').forEach(link => {
-    link.addEventListener('click', () => {
-      navLinks.classList.remove('open');
-      hamburger.classList.remove('active');
-    });
-  });
-}
+// 1-2. Mobile navigation is owned by script.js (single source of truth).
 
 // 3. Scroll reveal animations (elements with .reveal class)
 const revealObserver = new IntersectionObserver((entries) => {
