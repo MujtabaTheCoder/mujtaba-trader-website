@@ -637,11 +637,12 @@
             const dateStr = dt ? dt.toLocaleDateString('en-PK', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
             const timeStr = dt ? dt.toLocaleTimeString('en-PK', { hour: '2-digit', minute: '2-digit', hour12: true }) : '';
             const status = c.status || 'New';
-            const safeId = String(c.id == null ? '' : c.id).replace(/[^0-9]/g, '');
-            const nameEsc = escapeHtml(c.name || 'this candidate');
+            const rowId = String(c.id == null ? '' : c.id);
+            const idLiteral = JSON.stringify(rowId);
+            const nameLiteral = JSON.stringify(escapeHtml(c.name || 'this candidate'));
 
             return `
-              <tr id="row-${safeId}">
+              <tr id="row-${escapeHtml(rowId)}">
                 <td>${i + 1}</td>
                 <td>
                   <div class="candidate-name">${escapeHtml(c.name || 'Anonymous')}</div>
@@ -654,7 +655,7 @@
                 <td><strong>${escapeHtml(c.level || 'Beginner')}</strong></td>
                 <td><span class="course-chip">${escapeHtml(c.course || 'Gold Pro')}</span></td>
                 <td>
-                  <select onchange="window.updateStatus(${safeId}, this.value)" class="filter-select" style="padding:4px 8px;font-size:11px">
+                  <select onchange="window.updateStatus(${idLiteral}, this.value)" class="filter-select" style="padding:4px 8px;font-size:11px">
                     <option value="New" ${status === 'New' ? 'selected' : ''}>New</option>
                     <option value="Contacted" ${status === 'Contacted' ? 'selected' : ''}>Contacted</option>
                     <option value="Enrolled" ${status === 'Enrolled' ? 'selected' : ''}>Enrolled</option>
@@ -672,7 +673,7 @@
                     <a href="${callLink}" class="btn-contact btn-contact-call" title="Call">
                       <span>📞 Call</span>
                     </a>
-                    <button onclick='window.deleteCandidate(${JSON.stringify(String(c.id)).slice(1, -1)}, ${JSON.stringify(nameEsc).slice(1, -1)})' class="btn-delete" title="Delete permanently">
+                    <button onclick='window.deleteCandidate(${idLiteral}, ${nameLiteral})' class="btn-delete" title="Delete permanently">
                       🗑️ Delete
                     </button>
                   </div>
@@ -705,7 +706,7 @@
           if (!client) return;
           const { error } = await client.from('enrollments').delete().eq('id', id);
           if (error) throw error;
-          const row = document.getElementById('row-' + String(id).replace(/[^0-9]/g, ''));
+          const row = document.getElementById('row-' + String(id));
           if (row) row.remove();
           allCandidates = allCandidates.filter(c => String(c.id) !== String(id));
           const totalEl = safeEl('totalCount');
@@ -830,7 +831,7 @@
             const isBuy = String(sig.type || '').toUpperCase() === 'BUY';
             const typeColor = isBuy ? '#4ade80' : '#f87171';
             const dt = sig.created_at ? new Date(sig.created_at).toLocaleString() : '—';
-            const safeId = String(sig.id == null ? '' : sig.id).replace(/[^0-9]/g, '');
+            const idLiteral = JSON.stringify(String(sig.id == null ? '' : sig.id));
             return `
               <tr>
                 <td><strong>${escapeHtml(sig.pair || 'XAU/USD')}</strong></td>
@@ -842,7 +843,7 @@
                 <td><span class="outcome-badge" style="background:rgba(245,200,66,0.15);color:#f5c842;padding:2px 8px;border-radius:4px;font-size:11px">${escapeHtml(sig.status || 'Active')}</span></td>
                 <td style="font-size:11px;color:var(--text-3)">${dt}</td>
                 <td>
-                  <button onclick="window.deleteSignal(${safeId})" class="btn-delete" title="Delete Signal">
+                  <button onclick="window.deleteSignal(${idLiteral})" class="btn-delete" title="Delete Signal">
                     🗑️ Delete
                   </button>
                 </td>
