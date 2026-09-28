@@ -164,7 +164,7 @@
 
     grid.innerHTML = '';
 
-    signals.forEach(sig => {
+    signals.forEach((sig, index) => {
       const direction = (sig.type || '').toUpperCase();
       const isBuy = direction === 'BUY';
       const dirClass = isBuy ? 'buy' : 'sell';
@@ -185,7 +185,8 @@
       const timeText = sig.created_at ? new Date(sig.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : 'Today';
 
       const card = document.createElement('div');
-      card.className = 'signal-card tilt-card';
+      card.className = 'signal-card tilt-card reveal';
+      card.style.transitionDelay = (index * 80) + 'ms';
       card.innerHTML = `
         <div class="signal-card-header">
           <div class="signal-pair">
@@ -209,6 +210,15 @@
       `;
       grid.appendChild(card);
     });
+
+    if (typeof window.observeReveals === 'function') {
+      window.observeReveals(grid);
+    } else {
+      grid.querySelectorAll('.reveal').forEach(el => el.classList.add('visible', 'revealed'));
+    }
+    if (typeof window.attachTilt === 'function') {
+      grid.querySelectorAll('.tilt-card').forEach(el => window.attachTilt(el));
+    }
   }
 
   // Fetch real signals from Supabase

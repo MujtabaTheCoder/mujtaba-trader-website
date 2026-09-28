@@ -208,48 +208,142 @@
 
 
   /* ──────────────────────────────────────────
-     6. SCROLL REVEAL (IntersectionObserver)
+     6. SCROLL REVEAL (IntersectionObserver with RAF Gating)
+     Batch DOM mutations to prevent layout thrashing
      ──────────────────────────────────────────*/
-  function addRevealClasses() {
-    document.querySelector('.about-image-wrap')?.classList.add('reveal-left');
-    document.querySelector('.about-content')?.classList.add('reveal-right');
-    document.querySelectorAll('.service-card').forEach((el, i) => {
-      el.classList.add('reveal');
-      el.style.transitionDelay = (i * 100) + 'ms';
-    });
-    document.querySelector('.gold-content')?.classList.add('reveal-left');
-    document.querySelector('.gold-visual')?.classList.add('reveal-right');
-    document.querySelectorAll('.why-card').forEach((el, i) => {
-      el.classList.add('reveal');
-      el.style.transitionDelay = (i * 80) + 'ms';
-    });
-    document.querySelector('.enroll-info')?.classList.add('reveal-left');
-    document.querySelector('.form-container')?.classList.add('reveal-right');
-    document.querySelectorAll('.section-header').forEach(el => el.classList.add('reveal'));
-  }
-  addRevealClasses();
+  const revealQueue = new Set();
+  let revealRafId = null;
 
-  const revealObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (!entry.isIntersecting) return;
-      entry.target.classList.add('visible');
+  function flushRevealQueue() {
+    revealQueue.forEach(el => {
+      el.classList.add('visible', 'revealed');
 
-      if (entry.target.classList.contains('about-content') ||
-          entry.target.classList.contains('reveal-right')) {
+      if (el.classList.contains('about-content') || el.classList.contains('reveal-right')) {
         document.querySelectorAll('.skill-fill').forEach(f => f.classList.add('animated'));
       }
 
-      if (entry.target.closest?.('.hero')) startCounters();
-      revealObserver.unobserve(entry.target); // once revealed, stop watching
+      if (el.closest?.('.hero') || el.classList.contains('hero-stats') || el.classList.contains('stat-item')) {
+        startCounters();
+      }
     });
-  }, { threshold: 0.15 });
+    revealQueue.clear();
+    revealRafId = null;
+  }
 
-  document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(el => {
-    revealObserver.observe(el);
+  const revealObserver = new IntersectionObserver((entries) => {
+    let hasNew = false;
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        revealQueue.add(entry.target);
+        revealObserver.unobserve(entry.target);
+        hasNew = true;
+      }
+    });
+    if (hasNew && !revealRafId) {
+      revealRafId = requestAnimationFrame(flushRevealQueue);
+    }
+  }, {
+    rootMargin: '0px 0px -40px 0px',
+    threshold: 0.08
   });
 
-  // Also trigger counters on load (hero is visible immediately)
-  window.addEventListener('load', () => setTimeout(startCounters, 600), { once: true });
+  function observeReveals(root = document) {
+    root.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-up, .reveal-scale').forEach(el => {
+      if (!el.classList.contains('visible') && !el.classList.contains('revealed')) {
+        revealObserver.observe(el);
+      }
+    });
+  }
+  window.observeReveals = observeReveals;
+
+  function addRevealClasses() {
+    // 1. Hero elements entrance sequence
+    const heroBadge = document.querySelector('.hero-badge');
+    if (heroBadge) { heroBadge.classList.add('reveal'); heroBadge.style.transitionDelay = '80ms'; }
+    const heroTitle = document.querySelector('.hero-title');
+    if (heroTitle) { heroTitle.classList.add('reveal'); heroTitle.style.transitionDelay = '180ms'; }
+    const heroSub = document.querySelector('.hero-subtitle');
+    if (heroSub) { heroSub.classList.add('reveal'); heroSub.style.transitionDelay = '280ms'; }
+    const heroCta = document.querySelector('.hero-cta');
+    if (heroCta) { heroCta.classList.add('reveal'); heroCta.style.transitionDelay = '380ms'; }
+    const heroStats = document.querySelector('.hero-stats');
+    if (heroStats) { heroStats.classList.add('reveal'); heroStats.style.transitionDelay = '480ms'; }
+
+    // 2. About section
+    document.querySelector('.about-image-wrap')?.classList.add('reveal-left');
+    document.querySelector('.about-content')?.classList.add('reveal-right');
+
+    // 3. Services / Programs
+    document.querySelectorAll('.service-card').forEach((el, i) => {
+      el.classList.add('reveal');
+      el.style.transitionDelay = (i * 90) + 'ms';
+    });
+
+    // 4. Gold Edge
+    document.querySelector('.gold-content')?.classList.add('reveal-left');
+    document.querySelector('.gold-visual')?.classList.add('reveal-right');
+
+    // 5. Why Us
+    document.querySelectorAll('.why-card').forEach((el, i) => {
+      el.classList.add('reveal');
+      el.style.transitionDelay = (i * 70) + 'ms';
+    });
+
+    // 6. Live Signals bar & static cards
+    const liveBar = document.querySelector('.signal-live-bar');
+    if (liveBar) { liveBar.classList.add('reveal'); liveBar.style.transitionDelay = '80ms'; }
+    document.querySelectorAll('.signals-grid .signal-card').forEach((el, i) => {
+      el.classList.add('reveal');
+      el.style.transitionDelay = (i * 80) + 'ms';
+    });
+
+    // 7. Enrollment section
+    document.querySelector('.enroll-info')?.classList.add('reveal-left');
+    document.querySelector('.form-container')?.classList.add('reveal-right');
+    const badgeCard = document.querySelector('.official-badge-card');
+    if (badgeCard) { badgeCard.classList.add('reveal'); badgeCard.style.transitionDelay = '150ms'; }
+
+    // 8. Section headers
+    document.querySelectorAll('.section-header').forEach(el => el.classList.add('reveal'));
+
+    // 9. Inner page cards
+    document.querySelectorAll('.course-detail-card').forEach((el, i) => {
+      el.classList.add('reveal');
+      if (!el.style.transitionDelay) el.style.transitionDelay = (i * 90) + 'ms';
+    });
+    document.querySelectorAll('.channel-card').forEach((el, i) => {
+      el.classList.add('reveal');
+      if (!el.style.transitionDelay) el.style.transitionDelay = (i * 80) + 'ms';
+    });
+    document.querySelectorAll('.blog-card').forEach((el, i) => {
+      el.classList.add('reveal');
+      if (!el.style.transitionDelay) el.style.transitionDelay = (i * 80) + 'ms';
+    });
+    document.querySelectorAll('.ph-card').forEach((el, i) => {
+      el.classList.add('reveal');
+      if (!el.style.transitionDelay) el.style.transitionDelay = (i * 80) + 'ms';
+    });
+    document.querySelectorAll('.timeline-item').forEach((el, i) => {
+      el.classList.add('reveal');
+      if (!el.style.transitionDelay) el.style.transitionDelay = (i * 60) + 'ms';
+    });
+    document.querySelector('.comparison-table-wrap')?.classList.add('reveal');
+    document.querySelector('.enroll-page-info')?.classList.add('reveal-left');
+    document.querySelector('.enroll-form-card, .enroll-page-form-wrap')?.classList.add('reveal-right');
+    document.querySelectorAll('.step-item').forEach((el, i) => {
+      el.classList.add('reveal');
+      if (!el.style.transitionDelay) el.style.transitionDelay = (i * 90) + 'ms';
+    });
+  }
+
+  addRevealClasses();
+  observeReveals();
+
+  // Load event backup for above-the-fold content & hero counters
+  window.addEventListener('load', () => {
+    observeReveals();
+    setTimeout(startCounters, 500);
+  }, { once: true });
 
 
   /* ──────────────────────────────────────────
@@ -286,6 +380,7 @@
       card.style.transition = 'transform 0.4s ease';
     }, { passive: true });
   }
+  window.attachTilt = attachTilt;
 
   document.querySelectorAll('.tilt-card, .service-card, .why-card, .float-card, .stat-card').forEach(attachTilt);
 

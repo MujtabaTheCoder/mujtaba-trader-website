@@ -56,21 +56,45 @@
   navLinksEl.addEventListener('touchstart', (e) => e.stopPropagation(), { passive: true });
 })();
 
-// 3. Scroll reveal animations (elements with .reveal class)
-const revealObserver = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      entry.target.classList.add('revealed');
-      revealObserver.unobserve(entry.target);
+// 3. Scroll reveal animations (elements with .reveal, .reveal-left, .reveal-right, etc.)
+(function initPagesScrollReveal() {
+  if (typeof window.observeReveals === 'function') {
+    window.observeReveals();
+    return;
+  }
+
+  const revealQueue = new Set();
+  let rafId = null;
+
+  function flush() {
+    revealQueue.forEach(el => el.classList.add('visible', 'revealed'));
+    revealQueue.clear();
+    rafId = null;
+  }
+
+  const observer = new IntersectionObserver((entries) => {
+    let hasNew = false;
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        revealQueue.add(entry.target);
+        observer.unobserve(entry.target);
+        hasNew = true;
+      }
+    });
+    if (hasNew && !rafId) {
+      rafId = requestAnimationFrame(flush);
+    }
+  }, {
+    threshold: 0.08,
+    rootMargin: '0px 0px -40px 0px'
+  });
+
+  document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-up, .reveal-scale').forEach(el => {
+    if (!el.classList.contains('visible') && !el.classList.contains('revealed')) {
+      observer.observe(el);
     }
   });
-}, {
-  root: null,
-  rootMargin: '0px 0px -80px 0px', // start a bit before fully in view
-  threshold: 0.1
-});
-
-document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+})();
 
 // 4. Simple fade‑slide‑up animation via CSS (adds .revealed class)
 //    The actual animation is defined in style.css – this script only toggles the class.

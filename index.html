@@ -670,12 +670,13 @@
     const grid = document.getElementById('homeSignalsGrid');
     if (!grid) return;
 
-    function renderSignalCard(sig) {
+    function renderSignalCard(sig, index) {
       const isBuy    = (sig.type || '').toUpperCase() === 'BUY';
       const dirClass = isBuy ? 'buy' : 'sell';
       const dirIcon  = isBuy ? '🟢' : '🔴';
       const card     = document.createElement('div');
-      card.className = 'signal-card tilt-card';
+      card.className = 'signal-card tilt-card reveal';
+      card.style.transitionDelay = (index * 80) + 'ms';
       // Build HTML with template literal — only the columns we requested
       card.innerHTML =
         '<div class="signal-card-header">' +
@@ -711,9 +712,19 @@
         return;
       }
       const frag = document.createDocumentFragment();
-      list.forEach(sig => frag.appendChild(renderSignalCard(sig)));
+      list.forEach((sig, idx) => frag.appendChild(renderSignalCard(sig, idx)));
       grid.innerHTML = '';
       grid.appendChild(frag);
+
+      // Trigger smooth reveal and tilt attachments
+      if (typeof window.observeReveals === 'function') {
+        window.observeReveals(grid);
+      } else {
+        grid.querySelectorAll('.reveal').forEach(el => el.classList.add('visible', 'revealed'));
+      }
+      if (typeof window.attachTilt === 'function') {
+        grid.querySelectorAll('.tilt-card').forEach(el => window.attachTilt(el));
+      }
     }
 
     async function loadSignals() {
