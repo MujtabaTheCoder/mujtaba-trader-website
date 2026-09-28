@@ -214,45 +214,16 @@
   const revealQueue = new Set();
   let revealRafId = null;
 
-  /* ── Skill Progress Bars & RAF Percentage Counters (60fps) ── */
+  /* ── Skill Progress Bars & Gold Highlights (#FFB800) ── */
   let skillsAnimated = false;
-  function animateSkillPct(el, target, duration = 1400) {
-    const start = performance.now();
-    function step(now) {
-      const elapsed = Math.min((now - start) / duration, 1);
-      const eased = 1 - Math.pow(1 - elapsed, 3);
-      const val = Math.round(eased * target);
-      el.textContent = val + '%';
-      if (elapsed < 1) {
-        requestAnimationFrame(step);
-      } else {
-        el.textContent = target + '%';
-      }
-    }
-    requestAnimationFrame(step);
-  }
-
   function triggerSkills() {
     if (skillsAnimated) return;
     skillsAnimated = true;
 
-    const items = document.querySelectorAll('.skills-grid .skill-item');
-    items.forEach((item, i) => {
-      const fill  = item.querySelector('.skill-fill');
-      const pctEl = item.querySelector('.skill-pct');
-      const target = parseInt(pctEl?.dataset.target || pctEl?.textContent || '0', 10);
-      const delay = i * 130;
-
-      if (fill) {
-        fill.style.transitionDelay = delay + 'ms';
-        requestAnimationFrame(() => fill.classList.add('animated'));
-      }
-
-      if (pctEl && target > 0) {
-        setTimeout(() => {
-          animateSkillPct(pctEl, target, 1400);
-        }, delay);
-      }
+    const fills = document.querySelectorAll('.skills-grid .skill-fill');
+    fills.forEach((fill, i) => {
+      fill.style.transitionDelay = (i * 100) + 'ms';
+      requestAnimationFrame(() => fill.classList.add('animated'));
     });
   }
   window.triggerSkills = triggerSkills;

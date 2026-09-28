@@ -791,14 +791,20 @@ ul { list-style: none; }
 }
 .skill-fill {
   height: 100%;
-  width: 0%;
+  width: var(--w);
   background: linear-gradient(90deg, #FFB800 0%, #FFD700 50%, #FFA500 100%);
   border-radius: 999px;
-  transition: width 1.4s cubic-bezier(0.16, 1, 0.3, 1);
   box-shadow: 0 0 14px rgba(255, 184, 0, 0.65), 0 0 4px rgba(255, 184, 0, 0.8);
   position: relative;
   will-change: width;
+  animation: skillGrow 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+
+@keyframes skillGrow {
+  0%   { width: 0%; }
+  100% { width: var(--w); }
+}
+
 .skill-fill::after {
   content: '';
   position: absolute;
