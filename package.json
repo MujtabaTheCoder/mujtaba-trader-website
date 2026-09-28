@@ -3,12 +3,14 @@
   "version": "1.0.0",
   "description": "Mujtaba Forex Trader - 3D Aesthetic Forex & Gold Trading Website",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "start": "npx serve ."
+    "dev":     "vite",
+    "build":   "vite build",
+    "preview": "vite preview --port 4173",
+    "start":   "npx serve dist -p 5000",
+    "check":   "node -e \"require('fs').existsSync('dist/index.html') && console.log('✅ Build OK') || (console.error('❌ dist missing') && process.exit(1))\""
   },
   "devDependencies": {
     "vite": "^6.0.0"
   }
 }
+

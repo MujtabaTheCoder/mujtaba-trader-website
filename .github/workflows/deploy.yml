@@ -1,0 +1,136 @@
+name: 🚀 Deploy — Mujtaba Forex Trader
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true   # cancel stale deploy jobs on rapid pushes
+
+jobs:
+  # ── Quality Gate ─────────────────────────────────────────────
+  build:
+    name: Build & Validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build with Vite
+        run: npm run build
+
+      - name: Validate build output
+        run: |
+          echo "── Build artifact manifest ──"
+          ls -lh dist/
+          for page in index admin about contact courses enroll blog signals; do
+            if [ -f "dist/${page}.html" ]; then
+              echo "✅ ${page}.html"
+            else
+              echo "❌ MISSING: ${page}.html" && exit 1
+            fi
+          done
+
+      - name: Upload dist artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          retention-days: 1
+
+  # ── Preview Deploy (PRs only) ─────────────────────────────────
+  deploy-preview:
+    name: Preview Deploy
+    if: github.event_name == 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with: { name: dist, path: dist/ }
+
+      - name: Deploy Preview to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token:      ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id:     ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: ./
+
+  # ── Production Deploy (main branch only) ──────────────────────
+  deploy-production:
+    name: Production Deploy
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: build
+    runs-on: ubuntu-latest
+    environment: production   # requires manual approval if configured
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with: { name: dist, path: dist/ }
+
+      - name: Deploy to Vercel (Production)
+        id: vercel-deploy
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token:      ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id:     ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args:       '--prod'
+          working-directory: ./
+
+      - name: Capture deployment URL
+        run: echo "DEPLOY_URL=${{ steps.vercel-deploy.outputs.preview-url }}" >> $GITHUB_ENV
+
+  # ── Health Check (runs after production deploy) ────────────────
+  health-check:
+    name: Post-Deploy Health Verification
+    needs: deploy-production
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for edge propagation
+        run: sleep 20
+
+      - name: Verify /api/health endpoint
+        run: |
+          URL="${{ secrets.PRODUCTION_URL }}/api/health"
+          STATUS=$(curl -sf -o /dev/null -w "%{http_code}" "$URL" || echo "000")
+          if [ "$STATUS" == "200" ]; then
+            echo "✅ Health check passed (HTTP $STATUS)"
+          else
+            echo "❌ Health check FAILED (HTTP $STATUS)"
+            echo "   URL: $URL"
+            exit 1
+          fi
+
+      - name: Verify homepage loads
+        run: |
+          URL="${{ secrets.PRODUCTION_URL }}"
+          STATUS=$(curl -sf -o /dev/null -w "%{http_code}" "$URL" || echo "000")
+          if [ "$STATUS" == "200" ]; then
+            echo "✅ Homepage OK (HTTP $STATUS)"
+          else
+            echo "❌ Homepage FAILED (HTTP $STATUS)" && exit 1
+          fi
+
+      - name: Verify edge cache headers
+        run: |
+          HEADERS=$(curl -sI "${{ secrets.PRODUCTION_URL }}/favicon.svg")
+          echo "$HEADERS"
+          if echo "$HEADERS" | grep -qi "cache-control:.*immutable"; then
+            echo "✅ Immutable cache headers active"
+          else
+            echo "⚠️  Warning: immutable cache headers not detected"
+          fi
