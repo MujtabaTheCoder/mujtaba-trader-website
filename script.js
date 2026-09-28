@@ -214,12 +214,55 @@
   const revealQueue = new Set();
   let revealRafId = null;
 
+  /* ── Skill Progress Bars & RAF Percentage Counters (60fps) ── */
+  let skillsAnimated = false;
+  function animateSkillPct(el, target, duration = 1400) {
+    const start = performance.now();
+    function step(now) {
+      const elapsed = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - elapsed, 3);
+      const val = Math.round(eased * target);
+      el.textContent = val + '%';
+      if (elapsed < 1) {
+        requestAnimationFrame(step);
+      } else {
+        el.textContent = target + '%';
+      }
+    }
+    requestAnimationFrame(step);
+  }
+
+  function triggerSkills() {
+    if (skillsAnimated) return;
+    skillsAnimated = true;
+
+    const items = document.querySelectorAll('.skills-grid .skill-item');
+    items.forEach((item, i) => {
+      const fill  = item.querySelector('.skill-fill');
+      const pctEl = item.querySelector('.skill-pct');
+      const target = parseInt(pctEl?.dataset.target || pctEl?.textContent || '0', 10);
+      const delay = i * 130;
+
+      if (fill) {
+        fill.style.transitionDelay = delay + 'ms';
+        requestAnimationFrame(() => fill.classList.add('animated'));
+      }
+
+      if (pctEl && target > 0) {
+        setTimeout(() => {
+          animateSkillPct(pctEl, target, 1400);
+        }, delay);
+      }
+    });
+  }
+  window.triggerSkills = triggerSkills;
+
   function flushRevealQueue() {
     revealQueue.forEach(el => {
       el.classList.add('visible', 'revealed');
 
-      if (el.classList.contains('about-content') || el.classList.contains('reveal-right')) {
-        document.querySelectorAll('.skill-fill').forEach(f => f.classList.add('animated'));
+      if (el.classList.contains('about-content') || el.classList.contains('reveal-right') || el.classList.contains('skills-grid')) {
+        triggerSkills();
       }
 
       if (el.closest?.('.hero') || el.classList.contains('hero-stats') || el.classList.contains('stat-item')) {
@@ -338,6 +381,20 @@
 
   addRevealClasses();
   observeReveals();
+
+  // Direct observer for skills grid to guarantee 60fps animation trigger
+  const skillsGridEl = document.querySelector('.skills-grid');
+  if (skillsGridEl) {
+    const skillsObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          triggerSkills();
+          skillsObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -30px 0px' });
+    skillsObserver.observe(skillsGridEl);
+  }
 
   // Load event backup for above-the-fold content & hero counters
   window.addEventListener('load', () => {
